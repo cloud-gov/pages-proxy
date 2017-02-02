@@ -1,0 +1,13 @@
+language: ruby
+script: erb nginx.conf
+deploy:
+  edge: true
+  provider: cloudfoundry
+  username: gsa-18f-federalist_deployer
+  password:
+    secure: S1MNUVxRPH95NwWjhLVP+cSzcHTbQnbvJCOjdY4Tg16jUKo100qz1OcBw8Wp0JGap6Rs60yEMveFMGw7cHm/a/6t07FFruZtWQqm3Wk7Yhm7uKWMXn+BAIlTDEd2KM+7ThgM3EccThKkjZY/hezGlNssdcWWzzECcWuhmBEZT3uLfFOsdJ38P1Yi6n1L2sRAg/jkKuX1LX12N4FXP5Kn17qeLKjrRfIDDkwClzvZRS0AeDL/GiLjPup4JFa8Kr5wGsT21j2byRiEu2JLwe4NN7XDpzOKuH23gjkDgANwA3iUj2hsmTCglFEWCFoU8wlMlDrFZwojlGFWvRFWquqBSEuiR888uEeTilSl4lF/UmtJtX8vSsDDRXlU6v70N/QCSyWuN/EAPMSWi8z0dxdou+BZtvSoVt5rFPnEHHtyDiUWw5nPFPStCEBIzhOHnRMjcVJ1vRG7dGUMl2xekMhwva2e2eNawNqU3QwecWKH6m/a5xvfQB9U3RqpnM/NzdBDbZI7yU1U9k+Km2YPTeY9YZlIgWbswHTeNW2MxljNUcC+sH/WQlgtTODmfU1V+/DQ5K/i0i8lm1Jk1F2oF62cVIQT84Jx/bJy8aoI59gG8n1TQacxm+Q7vbrnt0BwJyMbEEXOfVDQGEOtonIAKG2WU63uDbaDRrpDnPIiZO5W8dE=
+  api: https://api.fr.cloud.gov
+  organization: gsa-18f-federalist
+  space: production
+  on:
+    branch: master
