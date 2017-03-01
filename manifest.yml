@@ -1,5 +1,5 @@
 ---
 buildpack: staticfile_buildpack
-memory: 512MB
+memory: 64MB
 name: federalist-proxy
-instances: 2
+instances: 4
