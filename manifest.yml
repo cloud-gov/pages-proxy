@@ -3,3 +3,5 @@ buildpack: staticfile_buildpack
 memory: 64MB
 name: federalist-proxy
 instances: 4
+env:
+  FEDERALIST_S3_BUCKET_URL: http://cg-06ab120d-836f-49a2-bc22-9dfb1585c3c6.s3-website-us-gov-west-1.amazonaws.com
