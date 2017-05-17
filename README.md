@@ -28,3 +28,16 @@ This proxy adds the following headers to the response from the S3 bucket:
 
 - Strict-Transport-Security: max-age=31536000
 - X-Frame-Options: SAMEORIGIN
+
+## Running locally with Docker
+
+__NOTE: Federalist does not use Docker for the production proxy__
+
+The proxy can be run locally using [Docker Compose](https://docs.docker.com/compose/). To start the site using Docker Compose, run the following after cloning the repo:
+
+```
+docker-compose build
+docker-compose up
+```
+
+The proxy should be available at `https://localhost:1338/`.
