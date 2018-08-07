@@ -31,15 +31,16 @@ This proxy adds the following headers to the response from the S3 bucket:
 - Strict-Transport-Security: max-age=31536000
 - X-Frame-Options: SAMEORIGIN
 
-## Running locally with Docker
+## Running locally using CF Local
 
-__NOTE: Federalist does not use Docker for the production proxy__
-
-The proxy can be run locally using [Docker Compose](https://docs.docker.com/compose/). To start the site using Docker Compose, run the following after cloning the repo:
+The proxy can be run locally using [CF Local](https://github.com/cloudfoundry-incubator/cflocal/). To start the site using CF Local, run the following after install CF Local plugin:
 
 ```
-docker-compose build
-docker-compose up
+cf local pull federalist-proxy-staging
+cf local run federalist-proxy-staging -f federalist-proxy-staging -w -d ./federalist-proxy-staging.droplet
 ```
-
-The proxy should be available at `https://localhost:1338/`.
+In the terminal, take note of the port on which the proxy is running.
+```
+Running federalist-proxy-staging on port 12345...
+```
+The proxy should be available at `https://localhost:12345/`.
