@@ -1,0 +1,25 @@
+{
+  "name": "federalist-proxy",
+  "version": "1.0.0",
+  "license": "CC0-1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/18f/fedrealist-proxy"
+  },
+  "homepage": "https://github.com/18f/federalist-proxy",
+  "author": "Amir Reavis-Bey",
+  "private": true,
+  "engines": {
+    "node": "^6"
+  },
+  "scripts": {
+    "test-staging": "PROXY_URL=https://federalist-proxy-staging.app.cloud.gov mocha test/**/*.js",
+    "test-prod": "PROXY_URL=https://federalist-proxy.app.cloud.gov mocha test/**/*.js"
+  },
+  "dependencies": {
+    "supertest": "^3",
+    "mocha": "^5",
+    "chai": "^4",
+    "body-parser": "^1"
+  }
+}
