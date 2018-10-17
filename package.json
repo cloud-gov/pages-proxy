@@ -10,7 +10,7 @@
   "author": "Amir Reavis-Bey",
   "private": true,
   "engines": {
-    "node": "^6"
+    "node": "10.x.x"
   },
   "scripts": {
     "test-staging": "PROXY_URL=https://federalist-proxy-staging.app.cloud.gov mocha test/**/*.js",
