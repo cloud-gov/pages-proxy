@@ -2,7 +2,7 @@
 applications:
 - name: federalist-proxy-staging
   buildpack: https://github.com/cloudfoundry/nginx-buildpack.git
-  memory: 96MB
+  memory: 128MB
   instances: 2
   env:
     FEDERALIST_PROXY_SERVER_NAME: federalist-proxy-staging
