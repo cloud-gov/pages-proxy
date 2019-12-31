@@ -53,7 +53,7 @@ describe('Federalist Docs Site', () => {
       .then((response) => {
         expect(response.text.indexOf('About Federalist')).to.be.above(-1);
         expect(response.headers['x-frame-options']).to.equal('SAMEORIGIN');
-        expect(response.headers['strict-transport-security']).to.equal('max-age=31536000');
+        expect(response.headers['strict-transport-security']).to.equal('max-age=31536000; preload');
       });
   });
 

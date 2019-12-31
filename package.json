@@ -13,6 +13,7 @@
     "node": "10.x.x"
   },
   "scripts": {
+    "test": "PROXY_URL=http://localhost:8000 mocha test/**/*.js",
     "test-staging": "PROXY_URL=https://federalist-proxy-staging.app.cloud.gov mocha test/**/*.js",
     "test-prod": "PROXY_URL=https://federalist-proxy.app.cloud.gov mocha test/**/*.js"
   },
