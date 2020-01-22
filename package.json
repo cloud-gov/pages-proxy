@@ -14,7 +14,7 @@
   },
   "scripts": {
     "parse-conf": "node ./bin/parse-conf.js",
-    "test": "npm run parse-conf && mocha test/**/*.js"
+    "test": "mocha test/**/*.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

@@ -12,6 +12,18 @@ services:
     command: ["node", "./bin/mock.js"]
     environment:
       PORT: $MOCK_PORT
+  build:
+    image: node
+    volumes:
+      - .:/app
+    environment:
+      # Used by variable substitution in `parse-conf.js`
+      DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
+      FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
+      FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
+      HOME: '/usr/share/nginx/html'
+      PROXY_PORT: $PROXY_PORT
+    working_dir: /app    
   app:
     image: node
     volumes:

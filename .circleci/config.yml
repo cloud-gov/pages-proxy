@@ -5,8 +5,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Parse Config
+          command: docker-compose run build npm run parse-conf
+      - run:
           name: Install Dependencies
-          command: docker-compose run app npm install
+          command: docker-compose run build npm install
       - run:
           name: Run Tests
           command: docker-compose run app npm test
