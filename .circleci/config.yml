@@ -14,8 +14,6 @@ jobs:
       - run:
           name: Parse Config
           command: npm run parse-conf
-      - run: ls -l
-      - run: ls -l tmp          
       - persist_to_workspace:
           root: tmp
           paths:
@@ -27,11 +25,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: tmp
-      - run: ls -l
-      - run: ls -l tmp
+      - run:
+          name: Install Dependencies
+          command: docker-compose run app npm install
       - run:
           name: Run Tests
-          command: docker-compose run app
+          command: docker-compose run app npm test
 
 workflows:
   version: 2
