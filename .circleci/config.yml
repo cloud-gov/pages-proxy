@@ -15,19 +15,18 @@ jobs:
           name: Parse Config
           command: npm run parse-conf
       - persist_to_workspace:
-          root: /
+          root: tmp
           paths:
-            - tmp
+            - nginx
 
   build:
     machine: true
     steps:
       - checkout
       - attach_workspace:
-          at: .
+          at: tmp
       - run: ls -l
       - run: ls -l tmp
-      - run: ls -l tmp/tmp
       - run:
           name: Run Tests
           command: docker-compose run app
