@@ -2,7 +2,7 @@ version: 2
 jobs:
   prepare:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:12
     environment:
       DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
