@@ -15,7 +15,10 @@ jobs:
           name: Parse Config
           command: npm run parse-conf
       - persist_to_workspace:
-          root: tmp
+          root: /
+          paths:
+            - tmp
+
   build:
     machine: true
     steps:
