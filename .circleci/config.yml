@@ -14,10 +14,12 @@ jobs:
       - run:
           name: Parse Config
           command: npm run parse-conf
+      - run: ls -l
+      - run: ls -l tmp          
       - persist_to_workspace:
           root: tmp
           paths:
-            - nginx
+            - nginx.conf
 
   build:
     machine: true
