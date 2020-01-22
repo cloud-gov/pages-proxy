@@ -27,7 +27,7 @@ services:
       DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
       FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
-      HOME: '/usr/share/nginx/html'
+      PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: $PROXY_PORT      
       # Determines the url to test against in the test suite
       PROXY_URL: http://nginx:$PROXY_PORT
