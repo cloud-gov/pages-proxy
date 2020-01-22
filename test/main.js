@@ -54,6 +54,7 @@ function headerSpecs(host) {
       return request(app)
         .get('/')
         .set('Host', host)
+        .expect(200)
         .expect('Content-Type', /charset=utf-8/);
     });
 
@@ -61,6 +62,7 @@ function headerSpecs(host) {
       return request(app)
         .get('/')
         .set('Host', host)
+        .expect(200)
         .expect('Strict-Transport-Security', /^max-age=31536000; preload$/);
     });
 
@@ -68,6 +70,7 @@ function headerSpecs(host) {
       return request(app)
         .get('/')
         .set('Host', host)
+        .expect(200)
         .expect('X-Frame-Options', /^SAMEORIGIN$/);
     });
 
