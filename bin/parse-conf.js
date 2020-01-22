@@ -2,16 +2,13 @@ const fs = require('fs');
 
 const RE = /\{\{(?<name>\w+)(?:\s["](?<arg>[\w]+)["])?\}\}/g;
 
-const ENV = {
-  FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging',
-  FEDERALIST_S3_BUCKET_URL: 'http://cg-f28e32aa-d42e-4906-a813-7d726f69183c.s3-website-us-gov-west-1.amazonaws.com',
-  HOME: '$host',
-  PORT: '8000'
-};
+const TMP_DIR = './tmp';
+
+const ENV = parseEnv(process.env)
 
 const funcs = {
   port() {
-    return ENV.PORT;
+    return ENV.PROXY_PORT;
   },
   
   env(arg) {
@@ -22,8 +19,12 @@ const funcs = {
 const rawConf = fs.readFileSync('./nginx.conf').toString();
 const matches = rawConf.matchAll(RE);
 const [parts, values] = extractParts(rawConf, matches, funcs);
-const tmpConf = joinParts(parts, values);
-fs.writeFileSync('./tmp-nginx.conf', tmpConf);
+const tmpConf = joinParts(parts, values).replace('daemon off;', '');
+
+if (!fs.existsSync(TMP_DIR)){
+  fs.mkdirSync(TMP_DIR);
+}
+fs.writeFileSync(`${TMP_DIR}/nginx.conf`, tmpConf);
 
 function extractParts(str, matches, funcs) {
   const parts = [];
@@ -47,4 +48,20 @@ function joinParts(parts, values) {
       str += values[i]
   }
   return str;
+}
+
+function parseEnv({
+  DEDICATED_S3_BUCKET_URL,
+  FEDERALIST_PROXY_SERVER_NAME,
+  FEDERALIST_S3_BUCKET_URL,
+  HOME,
+  PROXY_PORT
+}) {
+  return {
+    DEDICATED_S3_BUCKET_URL,
+    FEDERALIST_PROXY_SERVER_NAME,
+    FEDERALIST_S3_BUCKET_URL,
+    HOME,
+    PROXY_PORT
+  }
 }

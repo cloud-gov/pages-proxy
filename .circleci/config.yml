@@ -1,8 +1,11 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: circleci/ruby:2.4.1-node
     steps:
       - checkout
-      - run: erb nginx.conf
+      - run:
+          name: Install dependencies
+          command: docker-compose run app npm install
+      - run:
+          name: Run tests
+          command: docker-compose run app npm test

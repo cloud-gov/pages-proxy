@@ -13,14 +13,13 @@
     "node": "10.x.x"
   },
   "scripts": {
-    "test": "PROXY_URL=http://localhost:8000 mocha test/**/*.js",
-    "test-staging": "PROXY_URL=https://federalist-proxy-staging.app.cloud.gov mocha test/**/*.js",
-    "test-prod": "PROXY_URL=https://federalist-proxy.app.cloud.gov mocha test/**/*.js"
+    "parse-conf": "node ./bin/parse-conf.js",
+    "test": "npm run parse-conf && mocha test/**/*.js"
   },
   "dependencies": {
-    "supertest": "^3",
-    "mocha": "^5",
-    "chai": "^4",
-    "body-parser": "^1"
+    "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "mocha": "^7.0.0",
+    "supertest": "^4.0.2"
   }
 }
