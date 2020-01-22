@@ -31,6 +31,7 @@ services:
       PROXY_PORT: $PROXY_PORT      
       # Determines the url to test against in the test suite
       PROXY_URL: http://nginx:$PROXY_PORT
+    command: ["npm", "install", "&&", "npm", "test"]
     depends_on:
       - mock
       - nginx
