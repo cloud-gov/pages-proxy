@@ -27,7 +27,7 @@ jobs:
           at: /tmp
       - run:
           name: Run Tests
-          command: docker-compose run
+          command: docker-compose run app
 
 workflows:
   version: 2
