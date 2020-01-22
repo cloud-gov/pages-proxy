@@ -25,6 +25,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - run: ls -l
+      - run: ls -l tmp
+      - run: ls -l tmp/tmp
       - run:
           name: Run Tests
           command: docker-compose run app
