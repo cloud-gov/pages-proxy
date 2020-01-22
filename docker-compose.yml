@@ -1,17 +1,5 @@
 version: '3'
 services:
-  build:
-    image: node
-    volumes:
-      - .:/app
-    working_dir: /app
-    environment:
-      # Used by variable substitution in `parse-conf.js`
-      DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
-      FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
-      FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
-      HOME: '/usr/share/nginx/html'
-      PROXY_PORT: $PROXY_PORT
   mock:
     image: node
     volumes:
@@ -22,9 +10,11 @@ services:
       HOST: mock
       PORT: $MOCK_PORT
   nginx:
-    build:
-      dockerfile: Dockerfile
-      context: .
+    image: nginx
+    volumes:
+      - .:/usr/share/nginx/html:ro
+      - ./tmp/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./mime.types:/etc/nginx/mime.types:ro
     depends_on:
       - mock
   app:
@@ -33,7 +23,14 @@ services:
       - .:/app
     working_dir: /app
     environment:
+      # Used by variable substitution in `parse-conf.js`
+      DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
+      FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
+      FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
+      HOME: '/usr/share/nginx/html'
+      PROXY_PORT: $PROXY_PORT      
       # Determines the url to test against in the test suite
       PROXY_URL: http://nginx:$PROXY_PORT
     depends_on:
+      - mock
       - nginx

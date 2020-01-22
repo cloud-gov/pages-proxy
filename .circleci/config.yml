@@ -1,15 +1,34 @@
 version: 2
 jobs:
-  build:
-    machine: true
+  prepare:
+    environment:
+      DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
+      FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
+      FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
+      HOME: '/usr/share/nginx/html'
+      PROXY_PORT: $PROXY_PORT
+    docker:
+      image: circleci/node:10
     steps:
       - checkout
       - run:
-          name: Parse Config
-          command: docker-compose run build npm run parse-conf
-      - run:
           name: Install Dependencies
-          command: docker-compose run build npm install
+          command: npm install      
+      - run:
+          name: Parse Config
+          command: npm run parse-conf
+  build:
+    machine: true
+    steps:
       - run:
           name: Run Tests
           command: docker-compose run app npm test
+
+workflows:
+  version: 2
+  prepare_and_build:
+    jobs:
+      - prepare
+      - build:
+          requires:
+            - prepare
