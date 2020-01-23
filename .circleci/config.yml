@@ -4,16 +4,19 @@ jobs:
     docker:
       - image: circleci/node:12
     environment:
-      DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
+      DEDICATED_S3_BUCKET_URL: 'http://mock:8001/dedicated'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
-      FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
+      FEDERALIST_S3_BUCKET_URL: 'http://mock:8001/shared'
       PROXY_WWW: '/usr/share/nginx/html'
-      PROXY_PORT: $PROXY_PORT
+      PROXY_PORT: 8000
     steps:
       - checkout
       - run:
           name: Parse Config
           command: npm run parse-conf
+      - run:
+          name: Check Config
+          command: cat tmp/
       - persist_to_workspace:
           root: tmp
           paths:
