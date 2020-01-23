@@ -32,7 +32,7 @@ jobs:
             ls
             ls tmp
             docker run \
-            --mount type=bind,source="$(pwd)"/,target=/usr/share/nginx/html,readonly \
+            --mount type=bind,source="$(pwd)",target=/usr/share/nginx/html,readonly \
             --mount type=bind,source="$(pwd)"/tmp/nginx.conf,target=/etc/nginx/nginx.conf,readonly \
             --mount type=bind,source="$(pwd)"/mime.types,target=/etc/nginx/mime.types,readonly \
             -p 8000:8000 \
