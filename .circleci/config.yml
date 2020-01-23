@@ -29,6 +29,8 @@ jobs:
             echo "$(pwd)"/
             echo "$(pwd)"/tmp/nginx.conf
             echo "$(pwd)"/mime.types
+            ls
+            ls tmp
             docker run \
             --mount type=bind,source="$(pwd)"/,target=/usr/share/nginx/html,readonly \
             --mount type=bind,source="$(pwd)"/tmp/nginx.conf,target=/etc/nginx/nginx.conf,readonly \
