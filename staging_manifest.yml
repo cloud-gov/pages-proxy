@@ -8,5 +8,6 @@ applications:
     FEDERALIST_PROXY_SERVER_NAME: federalist-proxy-staging
     FEDERALIST_S3_BUCKET_URL: http://cg-f28e32aa-d42e-4906-a813-7d726f69183c.s3-website-us-gov-west-1.amazonaws.com
     DEDICATED_S3_BUCKET_URL: http://$name.s3-website-us-gov-west-1.amazonaws.com
+    DNS_RESOLVER: '8.8.8.8'
   health-check-type: http
   health-check-http-endpoint: /health

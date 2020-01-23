@@ -7,7 +7,6 @@ services:
     working_dir: /app
     command: ["node", "./bin/mock.js"]
     environment:
-      HOST: mock
       PORT: $MOCK_PORT
   nginx:
     image: nginx
@@ -28,9 +27,9 @@ services:
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
       FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
       PROXY_WWW: '/usr/share/nginx/html'
-      PROXY_PORT: $PROXY_PORT      
+      PROXY_PORT: $PROXY_PORT
+      DNS_RESOLVER: '127.0.0.11'
       # Determines the url to test against in the test suite
       PROXY_URL: http://nginx:$PROXY_PORT
     depends_on:
-      - mock
       - nginx
