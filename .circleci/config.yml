@@ -1,42 +1,36 @@
 version: 2
 jobs:
-  prepare:
+  build:
     docker:
       - image: circleci/node:12
     environment:
-      DEDICATED_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/dedicated'
+      DEDICATED_S3_BUCKET_URL: 'http://localhost:$MOCK_PORT/dedicated'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
-      FEDERALIST_S3_BUCKET_URL: 'http://mock:$MOCK_PORT/shared'
+      FEDERALIST_S3_BUCKET_URL: 'http://localhost:$MOCK_PORT/shared'
       PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: $PROXY_PORT
+      PROXY_URL: http://localhost:$PROXY_PORT
     steps:
       - checkout
+      - run:
+          name: Install Dependencies
+          command: npm install
       - run:
           name: Parse Config
           command: npm run parse-conf
-      - persist_to_workspace:
-          root: tmp
-          paths:
-            - nginx.conf
-
-  build:
-    machine: true
-    steps:
-      - checkout
-      - attach_workspace:
-          at: tmp
       - run:
-          name: Install Dependencies
-          command: docker-compose run app npm install
+          name: Run Mock Server
+          command: nohup node ./bin/mock.js > output.log &
       - run:
-          name: Run Tests
-          command: docker-compose run app npm test
-
-workflows:
-  version: 2
-  prepare_and_build:
-    jobs:
-      - prepare
-      - build:
-          requires:
-            - prepare
+          name: Run Proxy Server
+          command: |
+            docker run \
+            --mount type=bind,source="$(pwd)"/,target=/usr/share/nginx/html,readonly \
+            --mount type=bind,source="$(pwd)"/tmp/nginx.conf,target=/etc/nginx/nginx.conf,readonly \
+            --mount type=bind,source="$(pwd)"/mime.types,target=/etc/nginx/mime.types,readonly \
+            -p 8000:8000 \
+            -d \
+            nginx
+      - run:
+          name: Tun Tests
+          command: npm test
