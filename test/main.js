@@ -2,10 +2,6 @@ const request = require('supertest');
 const app = process.env.PROXY_URL;
 const { expect } = require('chai');
 
-// before(() => {
-//   return new Promise(resolve => setTimeout(resolve, 1500));
-// })
-
 describe('robots.txt', () => {
   it('is available', () => {
     return request(app)

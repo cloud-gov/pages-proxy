@@ -10,10 +10,9 @@
   "author": "Amir Reavis-Bey",
   "private": true,
   "engines": {
-    "node": "10.x.x"
+    "node": "12.x.x"
   },
   "scripts": {
-    "parse-conf": "node ./bin/parse-conf.js",
     "test": "mocha test/**/*.js"
   },
   "dependencies": {
