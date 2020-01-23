@@ -30,6 +30,6 @@ services:
       PROXY_PORT: $PROXY_PORT
       DNS_RESOLVER: '127.0.0.11'
       # Determines the url to test against in the test suite
-      PROXY_URL: http://nginx:$PROXY_PORT
+      PROXY_URL: http://localhost:$PROXY_PORT
     depends_on:
       - nginx
