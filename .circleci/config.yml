@@ -14,9 +14,6 @@ jobs:
       - run:
           name: Parse Config
           command: npm run parse-conf
-      - run:
-          name: Check Config
-          command: cat tmp/
       - persist_to_workspace:
           root: tmp
           paths:
