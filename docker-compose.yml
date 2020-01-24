@@ -37,6 +37,6 @@ services:
     working_dir: /app
     environment:
       # Determines the url to test against in the test suite
-      PROXY_URL: http://nginx:8000
+      PROXY_URL: 'http://nginx:8000'
     depends_on:
       - nginx

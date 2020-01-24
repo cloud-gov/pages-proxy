@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = process.env.PROXY_URL;
 const { expect } = require('chai');
-
+console.log({ app })
 describe('robots.txt', () => {
   it('is available', () => {
     return request(app)
