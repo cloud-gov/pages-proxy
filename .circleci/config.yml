@@ -9,7 +9,7 @@ jobs:
       FEDERALIST_S3_BUCKET_URL: 'http://mock:8001/shared'
       PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: 8000
-      DNS_RESOLVER: '127.0.0.11'
+      DNS_RESOLVER: '8.8.8.8'
     steps:
       - checkout
       - run:
