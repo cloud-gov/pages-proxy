@@ -1,6 +1,60 @@
 const request = require('supertest');
 const app = process.env.PROXY_URL;
 const { expect } = require('chai');
+const { parseConf } = require('../bin/parse-conf');
+
+describe('parse-conf', () => {
+  it('removes `daemon` configuration', () => {
+    const template = `
+      foo;
+      daemon off;
+      bar;
+    `;
+    const funcs = {};
+
+    const result = parseConf(template, funcs);
+
+    expect(result).to.equal(`
+      foo;
+      
+      bar;
+    `);
+  });
+
+  it('replaces interpolated functions with no arguments', () => {
+    const template = `
+      foo;
+      listen {{port}};
+      bar;
+    `;
+    const funcs = { port() { return 9000; } };
+
+    const result = parseConf(template, funcs);
+
+    expect(result).to.equal(`
+      foo;
+      listen 9000;
+      bar;
+    `);
+  });
+
+  it('replaces interpolated functions with arguments', () => {
+    const template = `
+      foo;
+      set $bucket_url {{env "DOMAIN"}};
+      bar;
+    `;
+    const funcs = { env(arg) { return `http://${arg}`; } };
+
+    const result = parseConf(template, funcs);
+
+    expect(result).to.equal(`
+      foo;
+      set $bucket_url http://DOMAIN;
+      bar;
+    `);
+  });
+});
 
 describe('robots.txt', () => {
   it('is available', () => {

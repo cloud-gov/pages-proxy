@@ -33,7 +33,7 @@ This proxy adds the following headers to the response from the S3 bucket:
 
 ## Running tests locally using Docker
 ``
-docker-compose run build npm install
-docker-compose run build node ./bin/parse-conf.js
+docker-compose run --no-deps app npm install
+docker-compose run --no-deps app node ./bin/parse-conf.js
 docker-compose run app npm test
 ``
