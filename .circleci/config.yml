@@ -1,31 +1,9 @@
 version: 2
 jobs:
-  # prepare:
-  #   docker:
-  #     - image: circleci/node:12
-  #   environment:
-  #     DEDICATED_S3_BUCKET_URL: 'http://mock:8001/dedicated'
-  #     FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
-  #     FEDERALIST_S3_BUCKET_URL: 'http://mock:8001/shared'
-  #     PROXY_WWW: '/usr/share/nginx/html'
-  #     PROXY_PORT: 8000
-  #     DNS_RESOLVER: '127.0.0.11'
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Parse Config
-  #         command: node ./bin/parse-conf.js
-  #     - persist_to_workspace:
-  #         root: tmp
-  #         paths:
-  #           - nginx.conf
-
   build:
     machine: true
     steps:
       - checkout
-      # - attach_workspace:
-      #     at: tmp
       - run:
           name: Install Dependencies
           command: docker-compose run --no-deps app npm install
@@ -35,12 +13,3 @@ jobs:
       - run:
           name: Run Tests
           command: docker-compose run app npm test
-
-# workflows:
-#   version: 2
-#   prepare_and_build:
-#     jobs:
-#       - prepare
-#       - build:
-#           requires:
-#             - prepare
