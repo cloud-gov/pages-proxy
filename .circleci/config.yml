@@ -1,8 +1,15 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: circleci/ruby:2.4.1-node
+    machine: true
     steps:
       - checkout
-      - run: erb nginx.conf
+      - run:
+          name: Install Dependencies
+          command: docker-compose run --no-deps app npm install
+      - run:
+          name: Parse Config
+          command: docker-compose run --no-deps app node ./bin/parse-conf.js          
+      - run:
+          name: Run Tests
+          command: docker-compose run app npm test
