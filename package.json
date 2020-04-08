@@ -10,16 +10,15 @@
   "author": "Amir Reavis-Bey",
   "private": true,
   "engines": {
-    "node": "10.x.x"
+    "node": "12.x.x"
   },
   "scripts": {
-    "test-staging": "PROXY_URL=https://federalist-proxy-staging.app.cloud.gov mocha test/**/*.js",
-    "test-prod": "PROXY_URL=https://federalist-proxy.app.cloud.gov mocha test/**/*.js"
+    "test": "mocha test/**/*.js"
   },
   "dependencies": {
-    "supertest": "^3",
-    "mocha": "^5",
-    "chai": "^4",
-    "body-parser": "^1"
+    "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "mocha": "^7.0.0",
+    "supertest": "^4.0.2"
   }
 }

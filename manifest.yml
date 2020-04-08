@@ -7,3 +7,7 @@ applications:
   env:
     FEDERALIST_PROXY_SERVER_NAME: federalist-proxy
     FEDERALIST_S3_BUCKET_URL: http://cg-06ab120d-836f-49a2-bc22-9dfb1585c3c6.s3-website-us-gov-west-1.amazonaws.com
+    DEDICATED_S3_BUCKET_URL: http://$name.s3-website-us-gov-west-1.amazonaws.com
+    DNS_RESOLVER: '8.8.8.8'
+  health-check-type: http
+  health-check-http-endpoint: /health
