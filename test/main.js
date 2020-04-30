@@ -76,7 +76,7 @@ describe('Health check', () => {
 
 describe('For `federalist-proxy-staging` hosts', () => {
   const host = 'federalist-proxy-staging.app.cloud.gov';
-  
+
   it('returns results from the SHARED bucket', () => {
     return request(app)
       .get('/')
@@ -90,7 +90,7 @@ describe('For `federalist-proxy-staging` hosts', () => {
 
 describe('For non-`federalist-proxy-staging` hosts', () => {
   const host = 'foobar.app.cloud.gov';
-  
+
   it('returns results from the DEDICATED bucket', () => {
     return request(app)
       .get('/')
@@ -116,6 +116,16 @@ function headerSpecs(host) {
       return request(app)
         .get('/')
         .set('Host', host)
+        .expect(200)
+        .expect('Strict-Transport-Security', /^max-age=31536000; preload$/);
+    });
+
+    it('includes HSTS header with includeSubdomain and preload on specific host', () => {
+      const specificHost = process.env.CLOUD_GOV_HOST;
+      
+      return request(app)
+        .get('/')
+        .set('Host', specificHost)
         .expect(200)
         .expect('Strict-Transport-Security', /^max-age=31536000; includeSubDomains; preload$/);
     });
