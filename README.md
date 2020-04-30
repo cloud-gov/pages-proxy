@@ -28,7 +28,7 @@ cf create-service cdn-route cdn-route YOUR.URL.gov-route -c '
 
 This proxy adds the following headers to the response from the S3 bucket:
 
-- Strict-Transport-Security: max-age=31536000; preload
+- Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 - X-Frame-Options: SAMEORIGIN
 
 ## Running tests locally using Docker

@@ -117,7 +117,7 @@ function headerSpecs(host) {
         .get('/')
         .set('Host', host)
         .expect(200)
-        .expect('Strict-Transport-Security', /^max-age=31536000; preload$/);
+        .expect('Strict-Transport-Security', /^max-age=31536000; includeSubDomains; preload$/);
     });
 
     it('includes same-origin X-Frame_Options header', () => {
