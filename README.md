@@ -31,6 +31,14 @@ This proxy adds the following headers to the response from the S3 bucket:
 - Strict-Transport-Security: max-age=31536000; preload
 - X-Frame-Options: SAMEORIGIN
 
+## Unique Site Headers
+
+To support the cloud.gov site with expanded HSTS headers, the proxy uses the
+{{ CLOUD_GOV_HOST }} environment variable to identify these requests to provide
+the expanded header `Strict-Transport-Security: max-age=31536000; allSubDomains; preload`.
+If the cloud.gov's Federalist site domain changes for any reason, the {{ CLOUD_GOV_HOST }}
+variable will need to be updated in the `manifest.yml`.
+
 ## Running tests locally using Docker
 ``
 docker-compose run --no-deps app npm install
