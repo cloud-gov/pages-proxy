@@ -14,7 +14,7 @@ const funcs = {
   port() {
     return ENV.PROXY_PORT;
   },
-  
+
   // {{env "ARGUMENT"}}
   env(arg) {
     return ENV[arg] || '';
@@ -23,7 +23,7 @@ const funcs = {
 
 /**
  * Interpolate a templated nginx configuration
- * 
+ *
  * @param {string} template - A templated nginx configuration
  * @param {object} funcs - Configured interpolation functions
  * @returns {string} The interpolated nginx configuration
@@ -39,16 +39,16 @@ function parseConf(template, funcs) {
  * interpolated values.
  *
  * This is similar to how tagged template literals work in javascript.
- * 
+ *
  * Ex.
  * const template = 'Hello {{env "LANGUAGE"}} world!';
  * const funcs = { env(arg) { return 'javascript; } };
  * const matches = template.matcnAll(RE);
  * //-> [{ index: 6, name: 'env', arg: 'LANGUAGE', length: 19 }]
- * 
+ *
  * const result = interpolate(template, matches, funcs);
  * // -> 'Hello javascript world!'
- * 
+ *
  * @param {string} template - Any string, but here it will contain the nginx configuration
  * @param {Object[]} matches - An array of results returned from `String.prototype.matchAll()`
  * @param {object} funcs - Interpolation functions
@@ -69,20 +69,21 @@ function interpolate(template, matches, funcs) {
     // argument from the match. Append the result.
     results.push(funcs[match.groups.name](match.groups.arg));
   }
-  
+
   // Append the last template chunk.
   results.push(template.slice(start));
-  
+
   return results.join('');
 }
 
 /**
  * Whitelist environment variables.
- * 
+ *
  * @param {object} env - Whitelist of environment variables
  * @returns {object} - whitelisted environment variables.
  */
 function parseEnv({
+  CLOUD_GOV_HOST,
   DEDICATED_S3_BUCKET_URL,
   FEDERALIST_PROXY_SERVER_NAME,
   FEDERALIST_S3_BUCKET_URL,
@@ -91,6 +92,7 @@ function parseEnv({
   DNS_RESOLVER
 }) {
   return {
+    CLOUD_GOV_HOST,
     DEDICATED_S3_BUCKET_URL,
     FEDERALIST_PROXY_SERVER_NAME,
     FEDERALIST_S3_BUCKET_URL,
