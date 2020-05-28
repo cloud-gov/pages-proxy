@@ -18,6 +18,7 @@ jobs:
   deploy:
     machine: true
     steps:
+      - checkout      
       - deploy:
           name: Deploy
           command: ./scripts/deploy-circle.sh
