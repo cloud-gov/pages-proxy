@@ -32,6 +32,7 @@ cf install-plugin autopilot -f -r CF-Community
 
 cf api $CF_API
 
+echo "Logging in to $CF_ORGANIZATION org, $CF_SPACE space."
 cf login -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORGANIZATION -s $CF_SPACE
 
 echo "Deploying to $CF_SPACE space."
