@@ -1,6 +1,7 @@
 version: 2
+  
 jobs:
-  build:
+  build-and-test:
     machine: true
     steps:
       - checkout
@@ -13,3 +14,25 @@ jobs:
       - run:
           name: Run Tests
           command: docker-compose run app npm test
+          
+  deploy:
+    machine: true
+    steps:
+      - checkout      
+      - deploy:
+          name: Deploy
+          command: ./scripts/deploy-circle.sh
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build-and-test
+      - deploy:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only:
+                - staging
+                - master
