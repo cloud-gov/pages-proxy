@@ -35,7 +35,7 @@ This proxy adds the following headers to the response from the S3 bucket:
 
 To support sites with expanded HSTS headers, the proxy uses the
 {{ INCLUDE_SUBDOMAINS }} environment variable to identify these requests to provide
-the expanded header `Strict-Transport-Security: max-age=31536000; allSubDomains; preload`.
+the expanded header `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`.
 If these Federalist site domains change for any reason, the {{ INCLUDE_SUBDOMAINS }}
 variable will need to be updated in the `manifest.yml`.
 
