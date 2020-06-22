@@ -28,6 +28,7 @@ cf create-service cdn-route cdn-route YOUR.URL.gov-route -c '
 
 This proxy adds the following headers to the response from the S3 bucket:
 
+- Server: federalist.18f.gov
 - Strict-Transport-Security: max-age=31536000; preload
 - X-Frame-Options: SAMEORIGIN
 
@@ -40,8 +41,9 @@ If the cloud.gov's Federalist site domain changes for any reason, the {{ CLOUD_G
 variable will need to be updated in the `manifest.yml`.
 
 ## Running tests locally using Docker
-``
+
+```
 docker-compose run --no-deps app npm install
 docker-compose run --no-deps app node ./bin/parse-conf.js
 docker-compose run app npm test
-``
+```
