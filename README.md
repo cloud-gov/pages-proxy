@@ -33,10 +33,10 @@ This proxy adds the following headers to the response from the S3 bucket:
 
 ## Unique Site Headers
 
-To support the cloud.gov site with expanded HSTS headers, the proxy uses the
-{{ CLOUD_GOV_HOST }} environment variable to identify these requests to provide
+To support sites with expanded HSTS headers, the proxy uses the
+{{ INCLUDE_SUBDOMAINS }} environment variable to identify these requests to provide
 the expanded header `Strict-Transport-Security: max-age=31536000; allSubDomains; preload`.
-If the cloud.gov's Federalist site domain changes for any reason, the {{ CLOUD_GOV_HOST }}
+If these Federalist site domains change for any reason, the {{ INCLUDE_SUBDOMAINS }}
 variable will need to be updated in the `manifest.yml`.
 
 ## Running tests locally using Docker

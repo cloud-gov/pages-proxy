@@ -103,7 +103,7 @@ describe('For non-`federalist-proxy-staging` hosts', () => {
 });
 
 describe('For `includeSubdomains` specific hosts', () => {
-  const subs = process.env.CLOUD_GOV_HOST.split('|');
+  const subs = process.env.INCLUDE_SUBDOMAINS.split('|');
   for(const sub of subs) {
     const host = `${sub}.app.cloud.gov`;
 

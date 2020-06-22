@@ -83,7 +83,7 @@ function interpolate(template, matches, funcs) {
  * @returns {object} - whitelisted environment variables.
  */
 function parseEnv({
-  CLOUD_GOV_HOST,
+  INCLUDE_SUBDOMAINS,
   DEDICATED_S3_BUCKET_URL,
   FEDERALIST_PROXY_SERVER_NAME,
   FEDERALIST_S3_BUCKET_URL,
@@ -92,7 +92,7 @@ function parseEnv({
   DNS_RESOLVER
 }) {
   return {
-    CLOUD_GOV_HOST,
+    INCLUDE_SUBDOMAINS,
     DEDICATED_S3_BUCKET_URL,
     FEDERALIST_PROXY_SERVER_NAME,
     FEDERALIST_S3_BUCKET_URL,

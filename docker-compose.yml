@@ -26,7 +26,7 @@ services:
     working_dir: /app
     environment:
       # Used by variable substitution in `parse-conf.js`
-      CLOUD_GOV_HOST: 'foobaz|specific'
+      INCLUDE_SUBDOMAINS: 'foobaz|specific'
       DEDICATED_S3_BUCKET_URL: 'http://mock:8001/dedicated'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
       FEDERALIST_S3_BUCKET_URL: 'http://mock:8001/shared'

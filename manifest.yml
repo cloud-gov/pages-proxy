@@ -9,6 +9,7 @@ applications:
     FEDERALIST_S3_BUCKET_URL: http://((shared-bucket)).s3-website-us-gov-west-1.amazonaws.com
     DEDICATED_S3_BUCKET_URL: http://$name.s3-website-us-gov-west-1.amazonaws.com
     DNS_RESOLVER: '8.8.8.8'
-    CLOUD_GOV_HOST: cg-88d42ca6-59d7-47e0-9500-4dd9251360b9.app.cloud.gov
+    # cloud.gov
+    INCLUDE_SUBDOMAINS: cg-88d42ca6-59d7-47e0-9500-4dd9251360b9
   health-check-type: http
   health-check-http-endpoint: /health
