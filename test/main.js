@@ -102,52 +102,55 @@ describe('For non-`federalist-proxy-staging` hosts', () => {
   describe('Headers', headerSpecs(host));
 });
 
-describe('For `cloud.gov` site specific host', () => {
-  const host = process.env.CLOUD_GOV_HOST;
+describe('For `includeSubdomains` specific hosts', () => {
+  const subs = process.env.CLOUD_GOV_HOST.split('|');
+  for(const sub of subs) {
+    const host = `${sub}.app.cloud.gov`;
 
-  it('returns results from the DEDICATED bucket', () => {
-    return request(app)
-      .get('/')
-      .set('Host', host)
-      .expect(200)
-      .then(matchText(/You have reached the dedicated bucket/i));
-  });
-
-  describe('Headers', () => {
-    it('includes charset utf-8 content type header', () => {
+    it('returns results from the DEDICATED bucket', () => {
       return request(app)
         .get('/')
         .set('Host', host)
         .expect(200)
-        .expect('Content-Type', /charset=utf-8/);
+        .then(matchText(/You have reached the dedicated bucket/i));
     });
 
-    it('includes HSTS header with includeSubdomain and preload', () => {
-      return request(app)
-        .get('/')
-        .set('Host', host)
-        .expect(200)
-        .expect('Strict-Transport-Security', /^max-age=31536000; includeSubDomains; preload$/);
-    });
-
-    it('includes same-origin X-Frame_Options header', () => {
-      return request(app)
-        .get('/')
-        .set('Host', host)
-        .expect(200)
-        .expect('X-Frame-Options', /^SAMEORIGIN$/);
-    });
-
-    describe('For .cfm files', () => {
-      it('includes text/html content type header', () => {
+    describe('Headers', () => {
+      it('includes charset utf-8 content type header', () => {
         return request(app)
-          .get('/test/helloworld.cfm')
+          .get('/')
           .set('Host', host)
           .expect(200)
-          .expect('Content-Type', /text\/html/);
+          .expect('Content-Type', /charset=utf-8/);
+      });
+
+      it('includes HSTS header with includeSubdomain and preload', () => {
+        return request(app)
+          .get('/')
+          .set('Host', host)
+          .expect(200)
+          .expect('Strict-Transport-Security', /^max-age=31536000; includeSubDomains; preload$/);
+      });
+
+      it('includes same-origin X-Frame_Options header', () => {
+        return request(app)
+          .get('/')
+          .set('Host', host)
+          .expect(200)
+          .expect('X-Frame-Options', /^SAMEORIGIN$/);
+      });
+
+      describe('For .cfm files', () => {
+        it('includes text/html content type header', () => {
+          return request(app)
+            .get('/test/helloworld.cfm')
+            .set('Host', host)
+            .expect(200)
+            .expect('Content-Type', /text\/html/);
+        });
       });
     });
-  });
+  }
 });
 
 function headerSpecs(host) {
