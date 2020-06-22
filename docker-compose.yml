@@ -17,8 +17,6 @@ services:
     restart: always
     depends_on:
       - mock
-    ports:
-      - "8000:8000"
   app:
     image: node:12
     volumes:
