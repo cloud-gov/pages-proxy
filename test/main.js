@@ -140,6 +140,14 @@ describe('For `includeSubdomains` specific hosts', () => {
           .expect('X-Frame-Options', /^SAMEORIGIN$/);
       });
 
+      it('includes federalist X-Server header', () => {
+        return request(app)
+          .get('/')
+          .set('Host', host)
+          .expect(200)
+          .expect('X-Server', /^Federalist$/);
+      });
+
       describe('For .cfm files', () => {
         it('includes text/html content type header', () => {
           return request(app)
@@ -177,6 +185,14 @@ function headerSpecs(host) {
         .set('Host', host)
         .expect(200)
         .expect('X-Frame-Options', /^SAMEORIGIN$/);
+    });
+
+    it('includes federalist X-Server header', () => {
+      return request(app)
+        .get('/')
+        .set('Host', host)
+        .expect(200)
+        .expect('X-Server', /^Federalist$/);
     });
 
     describe('For .cfm files', () => {
