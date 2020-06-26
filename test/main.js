@@ -137,7 +137,8 @@ describe('For `includeSubdomains` specific hosts', () => {
           .get('/')
           .set('Host', host)
           .expect(200)
-          .expect('X-Frame-Options', /^SAMEORIGIN$/);
+          .expect('X-Frame-Options', /^SAMEORIGIN$/)
+          .expect('X-Server', /^Federalist$/);
       });
 
       describe('For .cfm files', () => {
@@ -176,7 +177,8 @@ function headerSpecs(host) {
         .get('/')
         .set('Host', host)
         .expect(200)
-        .expect('X-Frame-Options', /^SAMEORIGIN$/);
+        .expect('X-Frame-Options', /^SAMEORIGIN$/)
+        .expect('X-Server', /^Federalist$/);
     });
 
     describe('For .cfm files', () => {
