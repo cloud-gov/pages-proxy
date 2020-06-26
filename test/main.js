@@ -137,7 +137,14 @@ describe('For `includeSubdomains` specific hosts', () => {
           .get('/')
           .set('Host', host)
           .expect(200)
-          .expect('X-Frame-Options', /^SAMEORIGIN$/)
+          .expect('X-Frame-Options', /^SAMEORIGIN$/);
+      });
+
+      it('includes federalist X-Server header', () => {
+        return request(app)
+          .get('/')
+          .set('Host', host)
+          .expect(200)
           .expect('X-Server', /^Federalist$/);
       });
 
@@ -177,7 +184,14 @@ function headerSpecs(host) {
         .get('/')
         .set('Host', host)
         .expect(200)
-        .expect('X-Frame-Options', /^SAMEORIGIN$/)
+        .expect('X-Frame-Options', /^SAMEORIGIN$/);
+    });
+
+    it('includes federalist X-Server header', () => {
+      return request(app)
+        .get('/')
+        .set('Host', host)
+        .expect(200)
         .expect('X-Server', /^Federalist$/);
     });
 
