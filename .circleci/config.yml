@@ -1,5 +1,55 @@
-version: 2
-  
+version: 2.1
+
+##################################
+##            Anchors           ##
+##################################
+maybe-configure-staging: &maybe-configure-staging
+  when:
+    condition:
+      equal: [ staging, << pipeline.git.branch >> ]
+    steps:
+      run:
+        name: Setup Staging Environment
+        command: |
+          echo "export CF_USERNAME=$CF_USERNAME_STAGING" >> $BASH_ENV
+          echo "export CF_PASSWORD=$CF_PASSWORD_STAGING" >> $BASH_ENV
+          echo "export CF_SPACE=staging" >> $BASH_ENV
+          echo "export CF_APP=federalist-proxy-staging" >> $BASH_ENV
+          echo "export CF_VARS_FILE=./.cloudgov/vars/staging.yml" >> $BASH_ENV
+
+maybe-configure-production: &maybe-configure-production
+  when:
+    condition:
+      equal: [ master, << pipeline.git.branch >> ]
+    steps:
+      run:
+        name: Setup Production Environment
+        command: |
+          echo "export CF_USERNAME=$CF_USERNAME_PRODUCTION" >> $BASH_ENV
+          echo "export CF_PASSWORD=$CF_PASSWORD_PRODUCTION" >> $BASH_ENV
+          echo "export CF_SPACE=production" >> $BASH_ENV
+          echo "export CF_APP=federalist-proxy" >> $BASH_ENV
+          echo "export CF_VARS_FILE=./.cloudgov/vars/production.yml" >> $BASH_ENV
+
+install-and-log-into-cloudgov: &install-and-log-into-cloudgov
+  run:
+    name: Install and log into CF7
+    command: |
+      curl -L -o cf7.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=v7&source=github'
+      sudo dpkg -i cf7.deb
+      rm cf7.deb
+      cf7 api https://api.fr.cloud.gov
+      cf7 login -u $CF_USERNAME -p $CF_PASSWORD -o gsa-18f-federalist -s $CF_SPACE
+
+log-out-of-cloudgov: &log-out-of-cloudgov
+  run:
+    name: Log out from Cloud.gov
+    command: cf7 logout
+
+
+##################################
+##             Jobs             ##
+##################################
 jobs:
   build-and-test:
     machine: true
@@ -17,12 +67,21 @@ jobs:
           
   deploy:
     machine: true
+    environment:
+      CF_MANIFEST: ./.cloudgov/manifest.yml
     steps:
-      - checkout      
+      - checkout
+      - *maybe-configure-staging
+      - *maybe-configure-production
+      - *install-and-log-into-cloudgov
       - deploy:
-          name: Deploy
-          command: ./scripts/deploy-circle.sh
+          command: ./.cloudgov/deploy.sh
+      - *log-out-of-cloudgov
 
+
+##################################
+##          Workflows           ##
+##################################
 workflows:
   version: 2
   build-test-deploy:
