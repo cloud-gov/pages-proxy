@@ -8,7 +8,10 @@ Proxies traffic from the Federalist S3 bucket to a CDN broker. Ensures HTTPS and
 
 To deploy the app:
 
-    $ cf push -f manifest.yml
+    $ cf7 push <app-name> --strategy rolling --vars-file </path/to/vars-file> -f </path/to/manifest>
+
+If the rolling deployment fails for any reason, make sure to clean up by running:
+    $ cf7 cancel-deployment <app-name>
 
 ## Proxying a Site
 
@@ -30,6 +33,7 @@ This proxy adds the following headers to the response from the S3 bucket:
 
 - Strict-Transport-Security: max-age=31536000; preload
 - X-Frame-Options: SAMEORIGIN
+- X-Server: Federalist
 
 ## Unique Site Headers
 
