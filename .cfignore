@@ -1,8 +1,8 @@
 .circleci
+.cloudgov
 bin
 envs
 node_modules
-scripts
 test
 tmp
 CONTRIBUTING.md
