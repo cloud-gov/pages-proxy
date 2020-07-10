@@ -77,10 +77,10 @@ function interpolate(template, matches, funcs) {
 }
 
 /**
- * Whitelist environment variables.
+ * Allow certain environment variables.
  *
- * @param {object} env - Whitelist of environment variables
- * @returns {object} - whitelisted environment variables.
+ * @param {object} env - Allowlist of environment variables
+ * @returns {object} - allowlisted environment variables.
  */
 function parseEnv({
   INCLUDE_SUBDOMAINS,
