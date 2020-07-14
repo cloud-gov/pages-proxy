@@ -20,7 +20,7 @@ maybe-configure-staging: &maybe-configure-staging
 maybe-configure-production: &maybe-configure-production
   when:
     condition:
-      equal: [ master, << pipeline.git.branch >> ]
+      equal: [ main, << pipeline.git.branch >> ]
     steps:
       run:
         name: Setup Production Environment
@@ -94,4 +94,4 @@ workflows:
             branches:
               only:
                 - staging
-                - master
+                - main
