@@ -64,7 +64,7 @@ jobs:
       - run:
           name: Run Tests
           command: docker-compose run app npm test
-          
+
   deploy:
     machine: true
     environment:
@@ -78,6 +78,16 @@ jobs:
           command: ./.cloudgov/deploy.sh
       - *log-out-of-cloudgov
 
+  recycle:
+    machine: true
+    steps:
+      - *maybe-configure-staging
+      - *maybe-configure-production
+      - *install-and-log-into-cloudgov
+      - run:
+          name: Recycle the application
+          command: cf7 restage $CF_APP --strategy rolling
+      - *log-out-of-cloudgov
 
 ##################################
 ##          Workflows           ##
@@ -95,3 +105,14 @@ workflows:
               only:
                 - staging
                 - main
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - staging
+                - main
+    jobs:
+      - recycle
