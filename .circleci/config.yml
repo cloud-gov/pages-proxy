@@ -52,8 +52,7 @@ log-out-of-cloudgov: &log-out-of-cloudgov
 ##################################
 jobs:
   build-and-test:
-    docker:
-      - image: cimg/base:2020.01
+    machine: true
     steps:
       - checkout
       - run:
@@ -67,8 +66,7 @@ jobs:
           command: docker-compose run app npm test
 
   deploy:
-    docker:
-      - image: cimg/base:2020.01
+    machine: true
     environment:
       CF_MANIFEST: ./.cloudgov/manifest.yml
     steps:
@@ -81,8 +79,7 @@ jobs:
       - *log-out-of-cloudgov
 
   recycle:
-    docker:
-      - image: cimg/base:2020.01
+    machine: true
     steps:
       - *maybe-configure-staging
       - *maybe-configure-production
