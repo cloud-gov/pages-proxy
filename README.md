@@ -8,10 +8,10 @@ Proxies traffic from the Federalist S3 bucket to a CDN broker. Ensures HTTPS and
 
 To deploy the app:
 
-    $ cf7 push <app-name> --strategy rolling --vars-file </path/to/vars-file> -f </path/to/manifest>
+    $ cf push <app-name> --strategy rolling --vars-file </path/to/vars-file> -f </path/to/manifest>
 
 If the rolling deployment fails for any reason, make sure to clean up by running:
-    $ cf7 cancel-deployment <app-name>
+    $ cf cancel-deployment <app-name>
 
 ## Proxying a Site
 
