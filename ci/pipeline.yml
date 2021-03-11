@@ -59,7 +59,6 @@ test: &test
             docker-compose -f docker-compose.yml run --no-deps app node ./bin/parse-conf.js
             docker-compose -f docker-compose.yml run app npm test
             docker-compose -f docker-compose.yml down
-            docker volume rm $(docker volume ls -q)    
 
 
 ############################
@@ -168,6 +167,7 @@ jobs:
       - task: restage
         config:
           <<: *cf-image
+          inputs: [name: src]
           run:
             path: src/ci/tasks/restage.sh
         params:
