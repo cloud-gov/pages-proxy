@@ -3,20 +3,6 @@ version: 2.1
 ##################################
 ##            Anchors           ##
 ##################################
-maybe-configure-staging: &maybe-configure-staging
-  when:
-    condition:
-      equal: [ staging, << pipeline.git.branch >> ]
-    steps:
-      run:
-        name: Setup Staging Environment
-        command: |
-          echo "export CF_USERNAME=$CF_USERNAME_STAGING" >> $BASH_ENV
-          echo "export CF_PASSWORD=$CF_PASSWORD_STAGING" >> $BASH_ENV
-          echo "export CF_SPACE=staging" >> $BASH_ENV
-          echo "export CF_APP=federalist-proxy-staging" >> $BASH_ENV
-          echo "export CF_VARS_FILE=./.cloudgov/vars/staging.yml" >> $BASH_ENV
-
 maybe-configure-production: &maybe-configure-production
   when:
     condition:
@@ -71,7 +57,6 @@ jobs:
       CF_MANIFEST: ./.cloudgov/manifest.yml
     steps:
       - checkout
-      - *maybe-configure-staging
       - *maybe-configure-production
       - *install-and-log-into-cloudgov
       - deploy:
@@ -81,7 +66,6 @@ jobs:
   recycle:
     machine: true
     steps:
-      - *maybe-configure-staging
       - *maybe-configure-production
       - *install-and-log-into-cloudgov
       - run:
@@ -103,7 +87,6 @@ workflows:
           filters:
             branches:
               only:
-                - staging
                 - main
   nightly:
     triggers:
@@ -112,7 +95,6 @@ workflows:
           filters:
             branches:
               only:
-                - staging
                 - main
     jobs:
       - recycle
