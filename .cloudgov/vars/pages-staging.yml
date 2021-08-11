@@ -1,0 +1,4 @@
+name: pages-proxy-staging
+memory: 96MB
+instances: 2
+shared-bucket: cg-2ca19f18-1cce-46b5-81b5-746900c66771
