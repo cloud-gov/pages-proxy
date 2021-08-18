@@ -1,7 +1,9 @@
 const request = require('supertest');
-const app = process.env.PROXY_URL;
 const { expect } = require('chai');
+
 const { parseConf } = require('../bin/parse-conf');
+
+const { PROXY_URL: app, DOMAIN: DOMAIN } = process.env;
 
 describe('parse-conf', () => {
   it('removes `daemon` configuration', () => {
@@ -39,9 +41,11 @@ describe('parse-conf', () => {
   });
 
   it('replaces interpolated functions with arguments', () => {
+    const value = 'BUCKET_URL'
+
     const template = `
       foo;
-      set $bucket_url {{env "DOMAIN"}};
+      set $bucket_url {{env "${value}"}};
       bar;
     `;
     const funcs = { env(arg) { return `http://${arg}`; } };
@@ -50,7 +54,7 @@ describe('parse-conf', () => {
 
     expect(result).to.equal(`
       foo;
-      set $bucket_url http://DOMAIN;
+      set $bucket_url http://${value};
       bar;
     `);
   });

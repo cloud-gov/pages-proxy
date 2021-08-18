@@ -2,3 +2,4 @@ name: federalist-proxy-staging
 memory: 96MB
 instances: 2
 shared-bucket: cg-f28e32aa-d42e-4906-a813-7d726f69183c
+domain: app\.cloud\.gov

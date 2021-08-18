@@ -11,5 +11,6 @@ applications:
     DNS_RESOLVER: '8.8.8.8'
     # cloud.gov|code.gov|presidentialinnovationfellows.gov|sbst.gov|vote.gov|connect.gov|login.gov
     INCLUDE_SUBDOMAINS: cg-88d42ca6-59d7-47e0-9500-4dd9251360b9|federalist-88023b0b-4406-431f-932d-5fd82c70c515|federalist-f7cff978-bf3d-4aaa-bbff-a77bbfc6d827|federalist-c1c3cd8c-125e-41f5-a533-f42e03c01486|cg-9e8debaf-b030-4825-a43c-cb2bc850c96c|federalist-a2074193-6730-4022-a8fd-466df53b6fa5|federalist-17bd62cc-77b7-4687-9c62-39b462ce6fd5
+    DOMAIN: ((domain))
   health-check-type: http
   health-check-http-endpoint: /health
