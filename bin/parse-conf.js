@@ -89,7 +89,8 @@ function parseEnv({
   FEDERALIST_S3_BUCKET_URL,
   PROXY_WWW: HOME,
   PROXY_PORT,
-  DNS_RESOLVER
+  DNS_RESOLVER,
+  DOMAIN
 }) {
   return {
     INCLUDE_SUBDOMAINS,
@@ -98,7 +99,8 @@ function parseEnv({
     FEDERALIST_S3_BUCKET_URL,
     HOME,
     PROXY_PORT,
-    DNS_RESOLVER
+    DNS_RESOLVER,
+    DOMAIN
   }
 }
 
