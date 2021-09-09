@@ -1,5 +1,5 @@
 name: pages-proxy-staging
 memory: 96MB
 instances: 2
-shared-bucket: cg-2ca19f18-1cce-46b5-81b5-746900c66771
+shared-bucket: cg-f28e32aa-d42e-4906-a813-7d726f69183c
 domain: sites\.pages-staging\.cloud\.gov
