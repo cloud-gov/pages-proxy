@@ -44,8 +44,8 @@ If these Federalist site domains change for any reason, the {{ INCLUDE_SUBDOMAIN
 variable will need to be updated in the `manifest.yml`.
 
 ## Running tests locally using Docker
-``
-    docker-compose run --no-deps --rm app npm install  
-    docker-compose run --no-deps --rm app node ./bin/parse-conf.js  
-    docker-compose run --rm app npm test  
-``
+```
+    docker-compose run --no-deps --rm app npm install 
+    docker-compose run --no-deps --rm app node ./bin/parse-conf.js 
+    docker-compose run --rm app npm test 
+```
