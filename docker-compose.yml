@@ -1,36 +1,48 @@
 version: '3'
 services:
-  mock:
-    image: node:12
+  mock-dedicated:
+    image: node:14
     volumes:
       - .:/app
     working_dir: /app
     command: ["node", "./bin/mock.js"]
     environment:
       PORT: 8001
+      BUCKET_TYPE: dedicated
+  mock-shared:
+    image: node:14
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["node", "./bin/mock.js"]
+    environment:
+      PORT: 8001
+      BUCKET_TYPE: shared
   nginx:
-    image: nginx:1.18
+    image: nginx:1.21
     volumes:
       - .:/usr/share/nginx/html:ro
       - ./tmp/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./mime.types:/etc/nginx/mime.types:ro
     restart: always
     depends_on:
-      - mock
+      - mock-dedicated
+      - mock-shared
   app:
-    image: node:12
+    image: node:14
     volumes:
       - .:/app
     working_dir: /app
     environment:
       # Used by variable substitution in `parse-conf.js`
       INCLUDE_SUBDOMAINS: 'foobaz|specific'
-      DEDICATED_S3_BUCKET_URL: 'http://mock:8001/dedicated'
+      DEDICATED_S3_BUCKET_URL: 'http://mock-dedicated:8001'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
-      FEDERALIST_S3_BUCKET_URL: 'http://mock:8001/shared'
+      FEDERALIST_S3_BUCKET_URL: 'http://mock-shared:8001'
       PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: 8000
       DNS_RESOLVER: '127.0.0.11'
+      PROXY_SSL_VERIFY: 'off'
       # Determines the url to test against in the test suite
       PROXY_URL: 'http://nginx:8000'
       DOMAIN: app\.cloud\.gov

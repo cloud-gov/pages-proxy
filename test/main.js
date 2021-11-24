@@ -70,7 +70,7 @@ describe('robots.txt', () => {
   });
 });
 
-describe('Health check', () => {
+describe.only('Health check', () => {
   it('returns 200', () => {
     return request(app)
       .get('/health')
@@ -86,10 +86,12 @@ describe('For `federalist-proxy-staging` hosts', () => {
       .get('/')
       .set('Host', host)
       .expect(200)
-      .then(matchText(/You have reached the shared bucket/i));
+      .expect('X-Bucket-Type', 'shared')
+      .then(matchText(/\//i));
   });
 
   describe('Headers', headerSpecs(host));
+  describe('Paths', pathSpecs(host));
 });
 
 describe('For non-`federalist-proxy-staging` hosts', () => {
@@ -100,10 +102,11 @@ describe('For non-`federalist-proxy-staging` hosts', () => {
       .get('/')
       .set('Host', host)
       .expect(200)
-      .then(matchText(/You have reached the dedicated bucket/i));
+      .expect('X-Bucket-Type', 'dedicated');
   });
 
   describe('Headers', headerSpecs(host));
+  describe('Paths', pathSpecs(host));
 });
 
 describe('For `includeSubdomains` specific hosts', () => {
@@ -116,7 +119,7 @@ describe('For `includeSubdomains` specific hosts', () => {
         .get('/')
         .set('Host', host)
         .expect(200)
-        .then(matchText(/You have reached the dedicated bucket/i));
+        .expect('X-Bucket-Type', 'dedicated');
     });
 
     describe('Headers', () => {
@@ -133,7 +136,7 @@ describe('For `includeSubdomains` specific hosts', () => {
           .get('/')
           .set('Host', host)
           .expect(200)
-          .expect('Strict-Transport-Security', /^max-age=31536000; includeSubDomains; preload$/);
+          .expect('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
       });
 
       it('includes same-origin X-Frame_Options header', () => {
@@ -141,7 +144,7 @@ describe('For `includeSubdomains` specific hosts', () => {
           .get('/')
           .set('Host', host)
           .expect(200)
-          .expect('X-Frame-Options', /^SAMEORIGIN$/);
+          .expect('X-Frame-Options', 'SAMEORIGIN');
       });
 
       it('includes federalist X-Server header', () => {
@@ -149,7 +152,7 @@ describe('For `includeSubdomains` specific hosts', () => {
           .get('/')
           .set('Host', host)
           .expect(200)
-          .expect('X-Server', /^Federalist$/);
+          .expect('X-Server', 'Federalist');
       });
 
       describe('For .cfm files', () => {
@@ -162,8 +165,77 @@ describe('For `includeSubdomains` specific hosts', () => {
         });
       });
     });
+    describe('Paths', pathSpecs(host));
   }
 });
+
+function pathSpecs(host) {
+  return () => {
+
+    describe('/<some-path>', () => {
+      describe('when the file exists', () => {
+        it('serves the file', () => {
+          const path = '/file';
+
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(200)
+            .then(matchText(/file/i));
+        });
+      })
+
+      describe('when the file does not exist', () => {
+        it('returns a 301 to /<some-path>/', () => {
+          const path = '/unicorn';
+
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(301)
+            .expect('Location', `http://${host}/unicorn/`);
+        });
+      })
+    })
+
+    describe('/<some-path>/', () => {
+      describe('when /<some-path>/index.html exists', () => {
+        it('serves /<some-path>/index.html', () => {
+          const path = '/file/';
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(200)
+            .then(matchText(/file2/i));
+        });
+      });
+
+      describe('when /<some-path>/index.html does not exist', () => {
+        it('serves the default 404.html', () => {
+          const path = '/unicorn/';
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(404)
+            .then(matchText(/4044444444/i));
+        });
+      });
+    });
+
+    describe('/<some-path>/index.html', () => {
+      describe('when /<some-path>/index.html exists', () => {
+        it('serves /<some-path>/index.html', () => {
+          const path = '/file/index.html';
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(200)
+            .then(matchText(/file2/i));
+        });
+      });
+    });
+  };
+}
 
 function headerSpecs(host) {
   return () => {
@@ -180,7 +252,7 @@ function headerSpecs(host) {
         .get('/')
         .set('Host', host)
         .expect(200)
-        .expect('Strict-Transport-Security', /^max-age=31536000; preload$/);
+        .expect('Strict-Transport-Security', 'max-age=31536000; preload');
     });
 
     it('includes same-origin X-Frame_Options header', () => {
@@ -188,7 +260,7 @@ function headerSpecs(host) {
         .get('/')
         .set('Host', host)
         .expect(200)
-        .expect('X-Frame-Options', /^SAMEORIGIN$/);
+        .expect('X-Frame-Options', 'SAMEORIGIN');
     });
 
     it('includes federalist X-Server header', () => {
@@ -196,7 +268,7 @@ function headerSpecs(host) {
         .get('/')
         .set('Host', host)
         .expect(200)
-        .expect('X-Server', /^Federalist$/);
+        .expect('X-Server', 'Federalist');
     });
 
     describe('For .cfm files', () => {
