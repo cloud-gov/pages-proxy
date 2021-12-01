@@ -70,7 +70,7 @@ describe('robots.txt', () => {
   });
 });
 
-describe.only('Health check', () => {
+describe('Health check', () => {
   it('returns 200', () => {
     return request(app)
       .get('/health')
