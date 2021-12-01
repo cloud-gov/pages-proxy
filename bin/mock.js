@@ -3,7 +3,6 @@ const http = require('http');
 const { PORT = 8001, BUCKET_TYPE } = process.env;
 
 const server = http.createServer((req, res) => {
-  console.log({ url: req.url });
   res.setHeader('X-Bucket-Type', BUCKET_TYPE);
 
   if (req.url === '/file') {
