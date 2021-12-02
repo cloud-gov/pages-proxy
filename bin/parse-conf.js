@@ -90,7 +90,8 @@ function parseEnv({
   PROXY_WWW: HOME,
   PROXY_PORT,
   DNS_RESOLVER,
-  DOMAIN
+  DOMAIN,
+  PROXY_SSL_VERIFY
 }) {
   return {
     INCLUDE_SUBDOMAINS,
@@ -100,7 +101,8 @@ function parseEnv({
     HOME,
     PROXY_PORT,
     DNS_RESOLVER,
-    DOMAIN
+    DOMAIN,
+    PROXY_SSL_VERIFY
   }
 }
 
