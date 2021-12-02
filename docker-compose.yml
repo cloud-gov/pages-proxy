@@ -42,7 +42,6 @@ services:
       PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: 8000
       DNS_RESOLVER: '127.0.0.11'
-      PROXY_SSL_VERIFY: 'off'
       # Determines the url to test against in the test suite
       PROXY_URL: 'http://nginx:8000'
       DOMAIN: app\.cloud\.gov
