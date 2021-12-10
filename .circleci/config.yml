@@ -60,10 +60,24 @@ jobs:
           command: docker-compose run --no-deps app npm install
       - run:
           name: Parse Config
-          command: docker-compose run --no-deps app node ./bin/parse-conf.js          
+          command: docker-compose run --no-deps app npm run parse
       - run:
           name: Run Tests
           command: docker-compose run app npm test
+
+  build-and-test-integration:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: docker-compose run --no-deps app npm install
+      - run:
+          name: Parse Config
+          command: docker-compose run --no-deps app npm run parse:integration
+      - run:
+          name: Run Integration Tests
+          command: docker-compose run app npm run test:integration
 
   deploy:
     machine: true
@@ -97,9 +111,11 @@ workflows:
   build-test-deploy:
     jobs:
       - build-and-test
+      - build-and-test-integration
       - deploy:
           requires:
             - build-and-test
+            - build-and-test-integration
           filters:
             branches:
               only:

@@ -36,14 +36,22 @@ services:
     environment:
       # Used by variable substitution in `parse-conf.js`
       INCLUDE_SUBDOMAINS: 'foobaz|specific'
-      DEDICATED_S3_BUCKET_URL: 'http://mock-dedicated:8001'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
-      FEDERALIST_S3_BUCKET_URL: 'http://mock-shared:8001'
+      MOCK_DEDICATED_S3_BUCKET_URL: 'http://mock-dedicated:8001'
+      MOCK_FEDERALIST_S3_BUCKET_URL: 'http://mock-shared:8001'
       PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: 8000
       DNS_RESOLVER: '127.0.0.11'
       # Determines the url to test against in the test suite
       PROXY_URL: 'http://nginx:8000'
+      S3_ENDPOINT: s3-fips.us-gov-west-1.amazonaws.com
+      DEDICATED_AWS_ACCESS_KEY_ID: ${DEDICATED_AWS_ACCESS_KEY_ID}
+      DEDICATED_AWS_SECRET_ACCESS_KEY: ${DEDICATED_AWS_SECRET_ACCESS_KEY}
+      DEDICATED_S3_BUCKET: cg-31e28f05-33dd-4c8d-ba13-19b1aa956257
+      SHARED_AWS_ACCESS_KEY_ID: ${SHARED_AWS_ACCESS_KEY_ID}
+      SHARED_AWS_SECRET_ACCESS_KEY: ${SHARED_AWS_SECRET_ACCESS_KEY}
+      SHARED_S3_BUCKET: cg-69dc2242-d953-47ca-9a72-b0236b631de8
+      AWS_REGION: us-gov-west-1
       DOMAIN: app\.cloud\.gov
     depends_on:
       - nginx

@@ -83,11 +83,10 @@ describe('For `federalist-proxy-staging` hosts', () => {
 
   it('returns results from the SHARED bucket', () => {
     return request(app)
-      .get('/')
+      .get('/bucket.html')
       .set('Host', host)
       .expect(200)
-      .expect('X-Bucket-Type', 'shared')
-      .then(matchText(/\//i));
+      .then(matchText(/shared/i));
   });
 
   describe('Headers', headerSpecs(host));
@@ -99,10 +98,10 @@ describe('For non-`federalist-proxy-staging` hosts', () => {
 
   it('returns results from the DEDICATED bucket', () => {
     return request(app)
-      .get('/')
+      .get('/bucket.html')
       .set('Host', host)
       .expect(200)
-      .expect('X-Bucket-Type', 'dedicated');
+      .then(matchText(/dedicated/i));
   });
 
   describe('Headers', headerSpecs(host));
@@ -116,42 +115,21 @@ describe('For `includeSubdomains` specific hosts', () => {
 
     it('returns results from the DEDICATED bucket', () => {
       return request(app)
-        .get('/')
+        .get('/bucket.html')
         .set('Host', host)
         .expect(200)
-        .expect('X-Bucket-Type', 'dedicated');
+        .then(matchText(/dedicated/i));
     });
 
     describe('Headers', () => {
-      it('includes charset utf-8 content type header', () => {
+      it('includes expected headers', () => {
         return request(app)
-          .get('/')
+          .get('/file')
           .set('Host', host)
           .expect(200)
-          .expect('Content-Type', /charset=utf-8/);
-      });
-
-      it('includes HSTS header with includeSubdomain and preload', () => {
-        return request(app)
-          .get('/')
-          .set('Host', host)
-          .expect(200)
-          .expect('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-      });
-
-      it('includes same-origin X-Frame_Options header', () => {
-        return request(app)
-          .get('/')
-          .set('Host', host)
-          .expect(200)
-          .expect('X-Frame-Options', 'SAMEORIGIN');
-      });
-
-      it('includes federalist X-Server header', () => {
-        return request(app)
-          .get('/')
-          .set('Host', host)
-          .expect(200)
+          .expect('Content-Type', /charset=utf-8/)
+          .expect('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+          .expect('X-Frame-Options', 'SAMEORIGIN')
           .expect('X-Server', 'Federalist');
       });
 
@@ -180,6 +158,7 @@ function pathSpecs(host) {
           return request(app)
             .get(path)
             .set('Host', host)
+            // .then(console.log);
             .expect(200)
             .then(matchText(/file/i));
         });
@@ -239,35 +218,14 @@ function pathSpecs(host) {
 
 function headerSpecs(host) {
   return () => {
-    it('includes charset utf-8 content type header', () => {
+    it('includes expected headers', () => {
       return request(app)
-        .get('/')
+        .get('/file')
         .set('Host', host)
         .expect(200)
-        .expect('Content-Type', /charset=utf-8/);
-    });
-
-    it('includes HSTS header with preload', () => {
-      return request(app)
-        .get('/')
-        .set('Host', host)
-        .expect(200)
-        .expect('Strict-Transport-Security', 'max-age=31536000; preload');
-    });
-
-    it('includes same-origin X-Frame_Options header', () => {
-      return request(app)
-        .get('/')
-        .set('Host', host)
-        .expect(200)
-        .expect('X-Frame-Options', 'SAMEORIGIN');
-    });
-
-    it('includes federalist X-Server header', () => {
-      return request(app)
-        .get('/')
-        .set('Host', host)
-        .expect(200)
+        .expect('Content-Type', /charset=utf-8/)
+        .expect('Strict-Transport-Security', 'max-age=31536000; preload')
+        .expect('X-Frame-Options', 'SAMEORIGIN')
         .expect('X-Server', 'Federalist');
     });
 

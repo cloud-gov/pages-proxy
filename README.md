@@ -43,9 +43,29 @@ the expanded header `Strict-Transport-Security: max-age=31536000; includeSubDoma
 If these Federalist site domains change for any reason, the {{ INCLUDE_SUBDOMAINS }}
 variable will need to be updated in the `manifest.yml`.
 
-## Running tests locally using Docker
+## Local setup
+### Install Depedencies
 ```
-    docker-compose run --no-deps --rm app npm install 
-    docker-compose run --no-deps --rm app node ./bin/parse-conf.js 
-    docker-compose run --rm app npm test 
+  docker-compose run --no-deps --rm app npm install
 ```
+
+### Running tests against the mock server
+```
+  docker-compose run --no-deps --rm app npm run parse
+  docker-compose run --rm app npm test 
+```
+
+### Running tests against s3 buckets
+```
+  docker-compose run --no-deps --rm app npm run parse:integration
+  docker-compose run --rm app npm test:integration
+```
+
+## Notes
+### When making changs
+In order for changes to the `nginx.conf` file or mock server to be reflected when running the tests, the dockers services must be restarted. This can be done by running `docker-compose down` before the above commands to parse the nginx.conf and run the tests.
+
+### Integration tests
+Integration tests use the following S3 buckets provisioned in the `sandbox` space in the `gsa-18f-federalist` cloud.gov organization:
+- `proxy-integration-test-dedicated`
+- `proxy-integration-test-shared`

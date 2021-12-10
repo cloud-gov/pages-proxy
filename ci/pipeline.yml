@@ -30,35 +30,70 @@ test: &test
       params: {save: true}
     - get: node
       params: {save: true}
-  - task: test
-    privileged: true
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: karlkfi/concourse-dcind
-      inputs:
-        - name: src
-        - name: nginx
-        - name: node
-      run:
-        dir: src
-        path: ci/docker/entrypoint.sh
-        args:
-          - bash
-          - -ceux
-          - |
-            pushd ..
-              docker load -i nginx/image
-              docker tag "$(cat nginx/image-id)" "$(cat nginx/repository):$(cat nginx/tag)"
-              docker load -i node/image
-              docker tag "$(cat node/image-id)" "$(cat node/repository):$(cat node/tag)"
-            popd
-            docker-compose -f docker-compose.yml run --no-deps app npm install
-            docker-compose -f docker-compose.yml run --no-deps app node ./bin/parse-conf.js
-            docker-compose -f docker-compose.yml run app npm test
-            docker-compose -f docker-compose.yml down
+  - in_parallel:
+    - task: test-mock
+      privileged: true
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: karlkfi/concourse-dcind
+        inputs:
+          - name: src
+          - name: nginx
+          - name: node
+        run:
+          dir: src
+          path: ci/docker/entrypoint.sh
+          args:
+            - bash
+            - -ceux
+            - |
+              pushd ..
+                docker load -i nginx/image
+                docker tag "$(cat nginx/image-id)" "$(cat nginx/repository):$(cat nginx/tag)"
+                docker load -i node/image
+                docker tag "$(cat node/image-id)" "$(cat node/repository):$(cat node/tag)"
+              popd
+              docker-compose -f docker-compose.yml run --no-deps app npm install
+              docker-compose -f docker-compose.yml run --no-deps app npm run parse
+              docker-compose -f docker-compose.yml run app npm test
+              docker-compose -f docker-compose.yml down
+    - task: test-integration
+      privileged: true
+      params:
+        DEDICATED_AWS_ACCESS_KEY_ID: ((dedicated-aws-access-key-id))
+        DEDICATED_AWS_SECRET_ACCESS_KEY: ((dedicated-aws-secret-access-key))
+        SHARED_AWS_ACCESS_KEY_ID: ((shared-aws-access-key-id))
+        SHARED_AWS_SECRET_ACCESS_KEY: ((shared-aws-secret-access-key))
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: karlkfi/concourse-dcind
+        inputs:
+          - name: src
+          - name: nginx
+          - name: node
+        run:
+          dir: src
+          path: ci/docker/entrypoint.sh
+          args:
+            - bash
+            - -ceux
+            - |
+              pushd ..
+                docker load -i nginx/image
+                docker tag "$(cat nginx/image-id)" "$(cat nginx/repository):$(cat nginx/tag)"
+                docker load -i node/image
+                docker tag "$(cat node/image-id)" "$(cat node/repository):$(cat node/tag)"
+              popd
+              docker-compose -f docker-compose.yml run --no-deps app npm install
+              docker-compose -f docker-compose.yml run --no-deps app npm run parse:integration
+              docker-compose -f docker-compose.yml run app npm run test:integration
+              docker-compose -f docker-compose.yml down
 
 
 ############################
