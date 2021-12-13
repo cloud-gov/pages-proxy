@@ -58,7 +58,7 @@ variable will need to be updated in the `manifest.yml`.
 ### Running tests against s3 buckets
 ```
   docker-compose run --no-deps --rm app npm run parse:integration
-  docker-compose run --rm app npm test:integration
+  docker-compose run --rm app npm run test:integration
 ```
 
 ## Notes
