@@ -62,7 +62,7 @@ variable will need to be updated in the `manifest.yml`.
 ```
 
 ## Notes
-### When making changs
+### When making changes
 In order for changes to the `nginx.conf` file or mock server to be reflected when running the tests, the dockers services must be restarted. This can be done by running `docker-compose down` before the above commands to parse the nginx.conf and run the tests.
 
 ### Integration tests
