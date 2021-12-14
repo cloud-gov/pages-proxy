@@ -3,8 +3,6 @@ const http = require('http');
 const { PORT = 8001, BUCKET_TYPE } = process.env;
 
 const server = http.createServer((req, res) => {
-  res.setHeader('X-Bucket-Type', BUCKET_TYPE);
-
   if (req.url === '/file') {
     res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
     res.end('file');
@@ -34,9 +32,21 @@ const server = http.createServer((req, res) => {
     res.end('<h1>4044444444</h1>');
     return;
   }
+  
+  if (req.url === '/bucket.html') {
+    res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
+    res.end(BUCKET_TYPE);
+    return;
+  }
 
-  res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
-  res.end(req.url);
+  if (req.url === '/test/helloworld.cfm') {
+    res.writeHead(200, 'Ok');
+    res.end();
+    return;
+  }
+
+  res.writeHead(500, { 'Content-Type': 'text/html' });
+  res.end(`Unknown path ${req.url}`);
 });
 
 server.listen(PORT, () => {
