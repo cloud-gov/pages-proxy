@@ -172,7 +172,8 @@ function pathSpecs(host) {
             .get(path)
             .set('Host', host)
             .expect(200)
-            .then(matchText(/no-content-type/i));
+            .expect('Content-Type', 'application/octet-stream')
+            .then(matchBody(/no-content-type/i));
         });
       });
 
@@ -251,6 +252,10 @@ function headerSpecs(host) {
       });
     });
   };
+}
+
+function matchBody(regex) {
+  return response => expect(response.body.toString()).to.match(regex);
 }
 
 function matchText(regex) {
