@@ -46,7 +46,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.url === '/no-content-type') {
-    res.writeHead(200, 'Ok');
+    res.writeHead(200, 'Ok', { 'Content-Type': 'application/octet-stream' });
     res.end('no-content-type');
     return;
   }
