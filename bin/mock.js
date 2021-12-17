@@ -45,6 +45,25 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (req.url === '/no-content-type') {
+    res.writeHead(200, 'Ok');
+    res.end('no-content-type');
+    return;
+  }
+
+  if (req.url === '/redirect-object') {
+    const location = '/redirect-object/index.html';
+    res.writeHead(200, 'Ok', { 'x-amz-website-redirect-location': location });
+    res.end(location);
+    return;
+  }
+
+  if (req.url === '/redirect-object/index.html') {
+    res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
+    res.end('redirect-object-target');
+    return;
+  }
+
   res.writeHead(500, { 'Content-Type': 'text/html' });
   res.end(`Unknown path ${req.url}`);
 });

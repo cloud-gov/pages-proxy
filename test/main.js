@@ -151,18 +151,30 @@ function pathSpecs(host) {
   return () => {
 
     describe('/<some-path>', () => {
-      describe('when the file exists', () => {
+      describe('when the file exists with a content type', () => {
         it('serves the file', () => {
           const path = '/file';
 
           return request(app)
             .get(path)
             .set('Host', host)
-            // .then(console.log);
             .expect(200)
+            .expect('Content-Type', 'text/html; charset=utf-8')
             .then(matchText(/file/i));
         });
-      })
+      });
+
+      describe('when the file exists without a content type', () => {
+        it('serves the file', () => {
+          const path = '/no-content-type';
+
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(200)
+            .then(matchText(/no-content-type/i));
+        });
+      });
 
       describe('when the file does not exist', () => {
         it('returns a 301 to /<some-path>/', () => {
@@ -175,7 +187,7 @@ function pathSpecs(host) {
             .expect('Location', `http://${host}/unicorn/`);
         });
       })
-    })
+    });
 
     describe('/<some-path>/', () => {
       describe('when /<some-path>/index.html exists', () => {
