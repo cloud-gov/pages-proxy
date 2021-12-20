@@ -3,6 +3,8 @@ const http = require('http');
 const { PORT = 8001, BUCKET_TYPE } = process.env;
 
 const server = http.createServer((req, res) => {
+  console.log(`Requested - ${req.method} | ${req.url}`);
+  
   if (req.url === '/file') {
     res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
     res.end('file');
@@ -12,18 +14,6 @@ const server = http.createServer((req, res) => {
   if (req.url === '/file/index.html') {
     res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
     res.end('file2');
-    return;
-  }
-
-  if (req.url === '/unicorn') {
-    res.writeHead(403, 'Not Found');
-    res.end();
-    return;
-  }
-
-  if (req.url === '/unicorn/index.html') {
-    res.writeHead(403, 'Not Found');
-    res.end();
     return;
   }
 
@@ -64,8 +54,10 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  res.writeHead(500, { 'Content-Type': 'text/html' });
+  res.writeHead(403, 'Forbidden');
   res.end(`Unknown path ${req.url}`);
+
+  console.log(`Responded - ${res.statusCode} ${res.statusMessage}`);
 });
 
 server.listen(PORT, () => {
