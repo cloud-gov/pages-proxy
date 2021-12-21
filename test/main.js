@@ -151,31 +151,57 @@ function pathSpecs(host) {
   return () => {
 
     describe('/<some-path>', () => {
-      describe('when the file exists', () => {
+      describe('when the file is a redirect object', () => {
+        it('serves the content at the redirect location', () => {
+          const path = '/redirect-object';
+          
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(200)
+            .expect('Content-Type', 'text/html; charset=utf-8')
+            .then(matchText(/redirect-object-target/i));
+        });
+      });
+
+      describe('when the file exists with a content type', () => {
         it('serves the file', () => {
           const path = '/file';
 
           return request(app)
             .get(path)
             .set('Host', host)
-            // .then(console.log);
             .expect(200)
+            .expect('Content-Type', 'text/html; charset=utf-8')
             .then(matchText(/file/i));
         });
-      })
+      });
+
+      describe('when the file exists without a content type', () => {
+        it('serves the file', () => {
+          const path = '/no-content-type';
+
+          return request(app)
+            .get(path)
+            .set('Host', host)
+            .expect(200)
+            .expect('Content-Type', 'application/octet-stream')
+            .then(matchBody(/no-content-type/i));
+        });
+      });
 
       describe('when the file does not exist', () => {
-        it('returns a 301 to /<some-path>/', () => {
+        it('serves the default 404.html', () => {
           const path = '/unicorn';
 
           return request(app)
             .get(path)
             .set('Host', host)
-            .expect(301)
-            .expect('Location', `http://${host}/unicorn/`);
+            .expect(404)
+            .then(matchText(/4044444444/i));
         });
       })
-    })
+    });
 
     describe('/<some-path>/', () => {
       describe('when /<some-path>/index.html exists', () => {
@@ -239,6 +265,10 @@ function headerSpecs(host) {
       });
     });
   };
+}
+
+function matchBody(regex) {
+  return response => expect(response.body.toString()).to.match(regex);
 }
 
 function matchText(regex) {

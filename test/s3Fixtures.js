@@ -11,11 +11,38 @@ const {
 
 function getFixtures(bucketType) {
   return {
-    'file': 'file',
-    'file/index.html': 'file2',
-    '404.html': '<h1>4044444444</h1>',
-    'test/helloworld.cfm': '',
-    'bucket.html': bucketType,
+    'file': {
+      content: 'file',
+      extras: { ContentType: 'text/html' },
+    }, 
+    'file/index.html': {
+      content: 'file2',
+      extras: { ContentType: 'text/html' },
+    },
+    '404.html': {
+      content: '<h1>4044444444</h1>',
+      extras: { ContentType: 'text/html' },
+    },
+    'test/helloworld.cfm': {
+      content: '',
+      extras: { ContentType: 'foobar' },
+    },
+    'bucket.html': {
+      content: bucketType,
+      extras: { ContentType: 'text/html' },
+    },
+    'no-content-type': {
+      content: 'no-content-type',
+      extras: {},
+    },
+    'redirect-object': {
+      content: '/redirect-object/index.html',
+      extras: { 'x-amz-website-redirect-location': '/redirect-object/index.html' },
+    },
+    'redirect-object/index.html': {
+      content: 'redirect-object-target',
+      extras: { ContentType: 'text/html' },
+    },
   };
 };
 
@@ -48,12 +75,13 @@ exports.mochaGlobalSetup = async function() {
     const s3 = new AWS.S3(creds);
 
     Object.keys(fixtures).map(key => {
+      const { content, extras } = fixtures[key];
       const params = {
         Bucket: bucket,
         Key: key,
-        ContentType: 'text/html',
         ServerSideEncryption: 'AES256',
-        Body: fixtures[key]
+        Body: content,
+        ...extras,
       };
       return s3.putObject(params).promise();
     });
