@@ -69,3 +69,5 @@ In order for changes to the `nginx.conf` file or mock server to be reflected whe
 Integration tests use the following S3 buckets provisioned in the `sandbox` space in the `gsa-18f-federalist` cloud.gov organization:
 - `proxy-integration-test-dedicated`
 - `proxy-integration-test-shared`
+
+Before running the tests, make a copy of the `.env.sample` file named `.env` and populate with the credentials from corresponding service keys `proxy-integration-test-dedicated-key` and `proxy-integration-test-shared-key` in the `sandbox` space. Ex. `cf t -s sandbox && cf service-key proxy-integration-test-dedicated proxy-integration-test-dedicated-key`.
