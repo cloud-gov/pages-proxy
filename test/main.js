@@ -4,7 +4,8 @@ const supertest = require('supertest');
 const { parseConf } = require('../bin/parse-conf');
 
 const {
-  PROXY_URL: app,
+  PATH_PREFIX,
+  PROXY_URL,
   DOMAIN,
   INCLUDE_SUBDOMAINS,
 } = process.env;
@@ -16,7 +17,9 @@ supertest.Test.prototype.expectStandardHeaders = function() {
   return this;
 }
 
-const request = supertest(app);
+const request = supertest(PROXY_URL);
+
+const prefixPath = (path) => `/${PATH_PREFIX}${path}`;
 
 describe('parse-conf', () => {
   it('removes `daemon` configuration', () => {
@@ -98,7 +101,7 @@ describe('For `federalist-proxy-staging` hosts', () => {
 
   it('returns results from the SHARED bucket', () => {
     return request
-      .get('/bucket.html')
+      .get(prefixPath('/bucket.html'))
       .set('Host', host)
       .expectStandardHeaders()
       .expect(200)
@@ -113,7 +116,7 @@ describe('For non-`federalist-proxy-staging` hosts', () => {
 
   it('returns results from the DEDICATED bucket', () => {
     return request
-      .get('/bucket.html')
+      .get(prefixPath('/bucket.html'))
       .set('Host', host)
       .expectStandardHeaders()
       .expect(200)
@@ -130,7 +133,7 @@ describe('For `includeSubdomains` specific hosts', () => {
 
     it('returns results from the DEDICATED bucket', () => {
       return request
-        .get('/bucket.html')
+        .get(prefixPath('/bucket.html'))
         .set('Host', host)
         .expectStandardHeaders()
         .expect(200)
@@ -140,7 +143,7 @@ describe('For `includeSubdomains` specific hosts', () => {
     describe('Headers', () => {
       it('includes expected headers', () => {
         return request
-          .get('/file')
+          .get(prefixPath('/file'))
           .set('Host', host)
           .expectStandardHeaders()
           .expect(200)
@@ -151,7 +154,7 @@ describe('For `includeSubdomains` specific hosts', () => {
       describe('For .cfm files', () => {
         it('includes text/html content type header', () => {
           return request
-            .get('/test/helloworld.cfm')
+            .get(prefixPath('/test/helloworld.cfm'))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(200)
@@ -172,7 +175,7 @@ function pathSpecs(host) {
           const path = '/redirect-object';
           
           return request
-            .get(path)
+            .get(prefixPath(path))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(200)
@@ -186,7 +189,7 @@ function pathSpecs(host) {
           const path = '/file';
 
           return request
-            .get(path)
+            .get(prefixPath(path))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(200)
@@ -196,11 +199,11 @@ function pathSpecs(host) {
       });
 
       describe('when the file exists without a content type', () => {
-        it('serves the file', () => {
+        it('serves the file with S3 default content type', () => {
           const path = '/no-content-type';
 
           return request
-            .get(path)
+            .get(prefixPath(path))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(200)
@@ -214,7 +217,7 @@ function pathSpecs(host) {
           const path = '/unicorn';
 
           return request
-            .get(path)
+            .get(prefixPath(path))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(404)
@@ -228,7 +231,7 @@ function pathSpecs(host) {
         it('serves /<some-path>/index.html', () => {
           const path = '/file/';
           return request
-            .get(path)
+            .get(prefixPath(path))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(200)
@@ -240,7 +243,7 @@ function pathSpecs(host) {
         it('serves the default 404.html', () => {
           const path = '/unicorn/';
           return request
-            .get(path)
+            .get(prefixPath(path))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(404)
@@ -254,7 +257,7 @@ function pathSpecs(host) {
         it('serves /<some-path>/index.html', () => {
           const path = '/file/index.html';
           return request
-            .get(path)
+            .get(prefixPath(path))
             .set('Host', host)
             .expectStandardHeaders()
             .expect(200)
