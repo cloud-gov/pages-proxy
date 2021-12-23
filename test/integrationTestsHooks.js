@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const Fixtures = require('./fixtures.js');
 
 const {
   DEDICATED_AWS_ACCESS_KEY_ID,
@@ -9,43 +10,6 @@ const {
   SHARED_S3_BUCKET
 } = process.env;
 
-function getFixtures(bucketType) {
-  return {
-    'file': {
-      content: 'file',
-      extras: { ContentType: 'text/html' },
-    }, 
-    'file/index.html': {
-      content: 'file2',
-      extras: { ContentType: 'text/html' },
-    },
-    '404.html': {
-      content: '<h1>4044444444</h1>',
-      extras: { ContentType: 'text/html' },
-    },
-    'test/helloworld.cfm': {
-      content: '',
-      extras: { ContentType: 'foobar' },
-    },
-    'bucket.html': {
-      content: bucketType,
-      extras: { ContentType: 'text/html' },
-    },
-    'no-content-type': {
-      content: 'no-content-type',
-      extras: {},
-    },
-    'redirect-object': {
-      content: '/redirect-object/index.html',
-      extras: { 'x-amz-website-redirect-location': '/redirect-object/index.html' },
-    },
-    'redirect-object/index.html': {
-      content: 'redirect-object-target',
-      extras: { ContentType: 'text/html' },
-    },
-  };
-};
-
 const buckets = {
   dedicated: {
     bucket: DEDICATED_S3_BUCKET,
@@ -54,7 +18,7 @@ const buckets = {
       secretAccessKey: DEDICATED_AWS_SECRET_ACCESS_KEY,
       apiVersion: '2006-03-01',
     },
-    fixtures: getFixtures('dedicated'),
+    fixtures: Fixtures.dedicated,
   },
   shared: {
     bucket: SHARED_S3_BUCKET,
@@ -63,7 +27,7 @@ const buckets = {
       secretAccessKey: SHARED_AWS_SECRET_ACCESS_KEY,
       apiVersion: '2006-03-01',
     },
-    fixtures: getFixtures('shared'),
+    fixtures: Fixtures.shared,
   }
 };
 

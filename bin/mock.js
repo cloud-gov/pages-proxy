@@ -1,61 +1,43 @@
 const http = require('http');
+const Fixtures = require('../test/fixtures');
 
 const { PORT = 8001, BUCKET_TYPE } = process.env;
 
+const routes = Fixtures[BUCKET_TYPE];
+
+function mapHeaders(extras = {}) {
+  const headers = Object.keys(extras).reduce((headers, name) => {
+    const headerName = name === 'ContentType' ? 'Content-Type' : name;
+    const headerValue = extras[name];
+    headers[headerName] = headerValue;
+    return headers;
+  }, {});
+  
+  // simulate S3 by providing default content type
+  headers['Content-Type'] = headers['Content-Type'] ?? 'application/octet-stream'; 
+
+  return headers;
+}
+
 const server = http.createServer((req, res) => {
   console.log(`Requested - ${req.method} | ${req.url}`);
+
+  let status = 403;
+  let statusText = 'Forbidden';
+  let headers = {};
+  let text = `Unknown path ${req.url}`;
   
-  if (req.url === '/file') {
-    res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
-    res.end('file');
-    return;
+  const route = routes[req.url.slice(1)];
+
+  if (route) {
+    status = 200;
+    statusText = 'Ok';
+    headers = mapHeaders(route.extras);
+    text = route.content;
   }
 
-  if (req.url === '/file/index.html') {
-    res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
-    res.end('file2');
-    return;
-  }
-
-  if (req.url === '/404.html') {
-    res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
-    res.end('<h1>4044444444</h1>');
-    return;
-  }
-  
-  if (req.url === '/bucket.html') {
-    res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
-    res.end(BUCKET_TYPE);
-    return;
-  }
-
-  if (req.url === '/test/helloworld.cfm') {
-    res.writeHead(200, 'Ok');
-    res.end();
-    return;
-  }
-
-  if (req.url === '/no-content-type') {
-    res.writeHead(200, 'Ok', { 'Content-Type': 'application/octet-stream' });
-    res.end('no-content-type');
-    return;
-  }
-
-  if (req.url === '/redirect-object') {
-    const location = '/redirect-object/index.html';
-    res.writeHead(200, 'Ok', { 'x-amz-website-redirect-location': location });
-    res.end(location);
-    return;
-  }
-
-  if (req.url === '/redirect-object/index.html') {
-    res.writeHead(200, 'Ok', { 'Content-Type': 'text/html' });
-    res.end('redirect-object-target');
-    return;
-  }
-
-  res.writeHead(403, 'Forbidden');
-  res.end(`Unknown path ${req.url}`);
+  res.writeHead(status, statusText, headers);
+  res.end(text);
 
   console.log(`Responded - ${res.statusCode} ${res.statusMessage}`);
 });

@@ -1,9 +1,25 @@
-const request = require('supertest');
 const { expect } = require('chai');
+const supertest = require('supertest');
 
 const { parseConf } = require('../bin/parse-conf');
 
-const { PROXY_URL: app, DOMAIN: DOMAIN } = process.env;
+const {
+  PATH_PREFIX,
+  PROXY_URL,
+  DOMAIN,
+  INCLUDE_SUBDOMAINS,
+} = process.env;
+
+supertest.Test.prototype.expectStandardHeaders = function() {
+  this.expect('X-Frame-Options', 'SAMEORIGIN');
+  this.expect('X-Server', 'Federalist');
+  this.expect('Strict-Transport-Security', /max-age=31536000; preload/);
+  return this;
+}
+
+const request = supertest(PROXY_URL);
+
+const prefixPath = (path) => `/${PATH_PREFIX}${path}`;
 
 describe('parse-conf', () => {
   it('removes `daemon` configuration', () => {
@@ -62,18 +78,20 @@ describe('parse-conf', () => {
 
 describe('robots.txt', () => {
   it('is available', () => {
-    return request(app)
+    return request
       .get('/robots.txt')
+      .expectStandardHeaders()
       .expect(200)
       .expect('Content-Type', /text\/plain/)
-      .then(matchText(/Disallow/));
+      .expect(/Disallow/);
   });
 });
 
 describe('Health check', () => {
   it('returns 200', () => {
-    return request(app)
+    return request
       .get('/health')
+      .expectStandardHeaders()
       .expect(200);
   });
 });
@@ -82,14 +100,14 @@ describe('For `federalist-proxy-staging` hosts', () => {
   const host = 'federalist-proxy-staging.app.cloud.gov';
 
   it('returns results from the SHARED bucket', () => {
-    return request(app)
-      .get('/bucket.html')
+    return request
+      .get(prefixPath('/bucket.html'))
       .set('Host', host)
+      .expectStandardHeaders()
       .expect(200)
-      .then(matchText(/shared/i));
+      .expect(/shared/i);
   });
 
-  describe('Headers', headerSpecs(host));
   describe('Paths', pathSpecs(host));
 });
 
@@ -97,49 +115,51 @@ describe('For non-`federalist-proxy-staging` hosts', () => {
   const host = 'foobar.app.cloud.gov';
 
   it('returns results from the DEDICATED bucket', () => {
-    return request(app)
-      .get('/bucket.html')
+    return request
+      .get(prefixPath('/bucket.html'))
       .set('Host', host)
+      .expectStandardHeaders()
       .expect(200)
-      .then(matchText(/dedicated/i));
+      .expect(/dedicated/i);
   });
 
-  describe('Headers', headerSpecs(host));
   describe('Paths', pathSpecs(host));
 });
 
 describe('For `includeSubdomains` specific hosts', () => {
-  const subs = process.env.INCLUDE_SUBDOMAINS.split('|');
+  const subs = INCLUDE_SUBDOMAINS.split('|');
   for(const sub of subs) {
     const host = `${sub}.app.cloud.gov`;
 
     it('returns results from the DEDICATED bucket', () => {
-      return request(app)
-        .get('/bucket.html')
+      return request
+        .get(prefixPath('/bucket.html'))
         .set('Host', host)
+        .expectStandardHeaders()
         .expect(200)
-        .then(matchText(/dedicated/i));
+        .expect(/dedicated/i);
     });
 
     describe('Headers', () => {
       it('includes expected headers', () => {
-        return request(app)
-          .get('/file')
+        return request
+          .get(prefixPath('/file'))
           .set('Host', host)
+          .expectStandardHeaders()
           .expect(200)
           .expect('Content-Type', /charset=utf-8/)
-          .expect('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
-          .expect('X-Frame-Options', 'SAMEORIGIN')
-          .expect('X-Server', 'Federalist');
+          .expect('Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains')
       });
 
       describe('For .cfm files', () => {
         it('includes text/html content type header', () => {
-          return request(app)
-            .get('/test/helloworld.cfm')
+          return request
+            .get(prefixPath('/test/helloworld.cfm'))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(200)
-            .expect('Content-Type', /text\/html/);
+            .expect('Content-Type', /text\/html/)
+            .expect('Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains');
         });
       });
     });
@@ -149,18 +169,18 @@ describe('For `includeSubdomains` specific hosts', () => {
 
 function pathSpecs(host) {
   return () => {
-
     describe('/<some-path>', () => {
       describe('when the file is a redirect object', () => {
         it('serves the content at the redirect location', () => {
           const path = '/redirect-object';
           
-          return request(app)
-            .get(path)
+          return request
+            .get(prefixPath(path))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(200)
             .expect('Content-Type', 'text/html; charset=utf-8')
-            .then(matchText(/redirect-object-target/i));
+            .expect(/redirect-object-target/i);
         });
       });
 
@@ -168,22 +188,24 @@ function pathSpecs(host) {
         it('serves the file', () => {
           const path = '/file';
 
-          return request(app)
-            .get(path)
+          return request
+            .get(prefixPath(path))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(200)
             .expect('Content-Type', 'text/html; charset=utf-8')
-            .then(matchText(/file/i));
+            .expect(/file/i);
         });
       });
 
       describe('when the file exists without a content type', () => {
-        it('serves the file', () => {
+        it('serves the file with S3 default content type', () => {
           const path = '/no-content-type';
 
-          return request(app)
-            .get(path)
+          return request
+            .get(prefixPath(path))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(200)
             .expect('Content-Type', 'application/octet-stream')
             .then(matchBody(/no-content-type/i));
@@ -194,11 +216,12 @@ function pathSpecs(host) {
         it('serves the default 404.html', () => {
           const path = '/unicorn';
 
-          return request(app)
-            .get(path)
+          return request
+            .get(prefixPath(path))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(404)
-            .then(matchText(/4044444444/i));
+            .expect(/4044444444/i);
         });
       })
     });
@@ -207,22 +230,24 @@ function pathSpecs(host) {
       describe('when /<some-path>/index.html exists', () => {
         it('serves /<some-path>/index.html', () => {
           const path = '/file/';
-          return request(app)
-            .get(path)
+          return request
+            .get(prefixPath(path))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(200)
-            .then(matchText(/file2/i));
+            .expect(/file2/i);
         });
       });
 
       describe('when /<some-path>/index.html does not exist', () => {
         it('serves the default 404.html', () => {
           const path = '/unicorn/';
-          return request(app)
-            .get(path)
+          return request
+            .get(prefixPath(path))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(404)
-            .then(matchText(/4044444444/i));
+            .expect(/4044444444/i);
         });
       });
     });
@@ -231,37 +256,13 @@ function pathSpecs(host) {
       describe('when /<some-path>/index.html exists', () => {
         it('serves /<some-path>/index.html', () => {
           const path = '/file/index.html';
-          return request(app)
-            .get(path)
+          return request
+            .get(prefixPath(path))
             .set('Host', host)
+            .expectStandardHeaders()
             .expect(200)
-            .then(matchText(/file2/i));
+            .expect(/file2/i);
         });
-      });
-    });
-  };
-}
-
-function headerSpecs(host) {
-  return () => {
-    it('includes expected headers', () => {
-      return request(app)
-        .get('/file')
-        .set('Host', host)
-        .expect(200)
-        .expect('Content-Type', /charset=utf-8/)
-        .expect('Strict-Transport-Security', 'max-age=31536000; preload')
-        .expect('X-Frame-Options', 'SAMEORIGIN')
-        .expect('X-Server', 'Federalist');
-    });
-
-    describe('For .cfm files', () => {
-      it('includes text/html content type header', () => {
-        return request(app)
-          .get('/test/helloworld.cfm')
-          .set('Host', host)
-          .expect(200)
-          .expect('Content-Type', /text\/html/);
       });
     });
   };
@@ -269,8 +270,4 @@ function headerSpecs(host) {
 
 function matchBody(regex) {
   return response => expect(response.body.toString()).to.match(regex);
-}
-
-function matchText(regex) {
-  return response => expect(response.text).to.match(regex);
 }
