@@ -32,7 +32,9 @@ const server = http.createServer((req, res) => {
   let headers = {};
   let text = `Unknown path ${req.url}`;
   
-  const route = routes[req.url.slice(1)];
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  
+  const route = routes[url.pathname.slice(1)];
 
   if (route) {
     status = 200;
