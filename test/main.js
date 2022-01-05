@@ -190,6 +190,16 @@ function pathSpecs(host, prefixPathFn) {
             [/redirect-object-target/i],
           ]);
         });
+
+        describe('with query parameters', () => {
+          it('serves the content at the redirect location', () => {          
+            return makeRequest(prefixPathFn('/redirect-object?foo.bar=baz'), host, [
+              [200],
+              ['Content-Type', 'text/html; charset=utf-8'],
+              [/redirect-object-target/i],
+            ]);
+          });
+        });
       });
 
       describe('when the file exists with a content type', () => {
@@ -223,6 +233,18 @@ function pathSpecs(host, prefixPathFn) {
       })
     });
 
+    describe('/<some-path-with-period>', () => {
+      describe('when the file is a redirect object', () => {
+        it('serves the content at the redirect location', () => {          
+          return makeRequest(prefixPathFn('/foo/path.with.period/bar'), host, [
+            [200],
+            ['Content-Type', 'text/html; charset=utf-8'],
+            [/path-with-period-target/i],
+          ]);
+        });
+      });
+    });
+
     describe('/<some-path>/', () => {
       describe('when /<some-path>/index.html exists', () => {
         it('serves /<some-path>/index.html', () => {
@@ -251,6 +273,15 @@ function pathSpecs(host, prefixPathFn) {
             [200],
             [/file2/i],
           ]);
+        });
+
+        describe('with query parameters', () => {
+          it('serves /<some-path>/index.html', () => {
+            return makeRequest(prefixPathFn('/file/index.html?foo=bar&baz.bar=foo'), host, [
+              [200],
+              [/file2/i],
+            ]);
+          });
         });
       });
     });
