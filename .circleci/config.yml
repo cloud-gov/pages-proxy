@@ -78,6 +78,9 @@ jobs:
       - run:
           name: Run Integration Tests
           command: docker-compose run app npm run test:integration
+      - run:
+          name: Run Integration Tests with Website Configuration
+          command: docker-compose run app npm run test:integration:website-config
 
   deploy:
     machine: true

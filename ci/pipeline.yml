@@ -93,6 +93,7 @@ test: &test
               docker-compose -f docker-compose.yml run --no-deps app npm install
               docker-compose -f docker-compose.yml run --no-deps app npm run parse:integration
               docker-compose -f docker-compose.yml run app npm run test:integration
+              docker-compose -f docker-compose.yml run app npm run test:integration:website-config
               docker-compose -f docker-compose.yml down
 
 
