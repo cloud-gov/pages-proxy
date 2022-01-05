@@ -9,7 +9,8 @@ services:
     environment:
       PORT: 8001
       BUCKET_TYPE: dedicated
-      PATH_PREFIX: 'site/owner/repo'
+      PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
+      DEFAULT_PATH_PREFIX: 'site/owner/repo'
   mock-shared:
     image: node:14
     volumes:
@@ -19,7 +20,8 @@ services:
     environment:
       PORT: 8001
       BUCKET_TYPE: shared
-      PATH_PREFIX: 'site/owner/repo'
+      PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
+      DEFAULT_PATH_PREFIX: 'site/owner/repo'
   nginx:
     image: openresty/openresty:1.19.9.1-4-buster
     volumes:
@@ -45,7 +47,8 @@ services:
       PROXY_PORT: 8000
       DNS_RESOLVER: '127.0.0.11'
       # Determines the url to test against in the test suite
-      PATH_PREFIX: 'site/owner/repo'
+      PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
+      DEFAULT_PATH_PREFIX: 'site/owner/repo'
       PROXY_URL: 'http://nginx:8000'
       S3_ENDPOINT: s3-fips.us-gov-west-1.amazonaws.com
       DEDICATED_AWS_ACCESS_KEY_ID: ${DEDICATED_AWS_ACCESS_KEY_ID}

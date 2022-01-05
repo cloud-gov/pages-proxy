@@ -5,9 +5,14 @@ const { PORT = 8001, BUCKET_TYPE } = process.env;
 
 const routes = Fixtures[BUCKET_TYPE];
 
+const headerNameMappings = {
+  ContentType: 'Content-Type',
+  WebsiteRedirectLocation: 'x-amz-website-redirect-location',
+};
+
 function mapHeaders(extras = {}) {
   const headers = Object.keys(extras).reduce((headers, name) => {
-    const headerName = name === 'ContentType' ? 'Content-Type' : name;
+    const headerName = headerNameMappings[name] ?? name;
     const headerValue = extras[name];
     headers[headerName] = headerValue;
     return headers;

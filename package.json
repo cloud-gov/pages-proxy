@@ -16,7 +16,8 @@
     "parse": "node ./bin/parse-conf.js",
     "parse:integration": "INTEGRATION=true node ./bin/parse-conf.js",
     "test": "mocha test/**/*.js",
-    "test:integration": "mocha --require test/integrationTestsHooks.js test/**/*.js"
+    "test:integration": "mocha --require test/integrationTestsHooks.js test/**/*.js",
+    "test:integration:website-config": "WEBSITE_CONFIG=true mocha --require test/integrationTestsHooks.js test/**/*.js"
   },
   "dependencies": {
     "aws-sdk": "^2.1045.0",
