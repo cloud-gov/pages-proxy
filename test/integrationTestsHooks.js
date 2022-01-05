@@ -7,7 +7,8 @@ const {
   DEDICATED_S3_BUCKET,
   SHARED_AWS_ACCESS_KEY_ID,
   SHARED_AWS_SECRET_ACCESS_KEY,
-  SHARED_S3_BUCKET
+  SHARED_S3_BUCKET,
+  WEBSITE_CONFIG
 } = process.env;
 
 const buckets = {
@@ -38,8 +39,9 @@ exports.mochaGlobalSetup = async function() {
     const { bucket, creds, fixtures } = buckets[bucketType];
     const s3 = new AWS.S3(creds);
 
-    Object.keys(fixtures).map(key => {
+    return Object.keys(fixtures).flatMap(key => {
       const { content, extras } = fixtures[key];
+
       const params = {
         Bucket: bucket,
         Key: key,
@@ -47,7 +49,28 @@ exports.mochaGlobalSetup = async function() {
         Body: content,
         ...extras,
       };
-      return s3.putObject(params).promise();
+
+      const _requests = [s3.putObject(params).promise()];
+      
+      if (WEBSITE_CONFIG && key.startsWith('site') && key.endsWith('404.html')) {
+        console.log('Creating bucket website configuration');
+
+        _requests.push(
+          s3.putBucketWebsite({
+            Bucket: bucket,
+            WebsiteConfiguration: {
+              ErrorDocument: {
+                Key: key,
+              },
+              IndexDocument: {
+                Suffix: 'index.html',
+              },
+            },
+          }).promise()
+        );
+      }
+
+      return _requests;
     });
   });
   
@@ -59,7 +82,7 @@ exports.mochaGlobalSetup = async function() {
 exports.mochaGlobalTeardown = async function() {
   console.log('Removing fixtures from S3 buckets');
 
-  const requests = Object.keys(buckets).map(bucketType => {
+  const requests = Object.keys(buckets).flatMap(bucketType => {
     const { bucket, creds, fixtures } = buckets[bucketType];
     const s3 = new AWS.S3(creds);
 
@@ -70,9 +93,20 @@ exports.mochaGlobalTeardown = async function() {
       },
     };
     
-    return s3.deleteObjects(params).promise();
+    const _requests = [s3.deleteObjects(params).promise()];
+    
+    if (WEBSITE_CONFIG) {
+      console.log('Removing bucket website configuration');
+
+      _requests.push(
+        s3.deleteBucketWebsite({ Bucket: bucket }).promise()
+      )
+    }
+
+    return _requests;
   });
-  
+
+
   await Promise.all(requests);
 
   console.log('Fixtures removed');

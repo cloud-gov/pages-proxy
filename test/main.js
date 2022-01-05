@@ -4,7 +4,8 @@ const supertest = require('supertest');
 const { parseConf } = require('../bin/parse-conf');
 
 const {
-  PATH_PREFIX,
+  PREVIEW_PATH_PREFIX,
+  DEFAULT_PATH_PREFIX,
   PROXY_URL,
   DOMAIN,
   INCLUDE_SUBDOMAINS,
@@ -19,7 +20,24 @@ supertest.Test.prototype.expectStandardHeaders = function() {
 
 const request = supertest(PROXY_URL);
 
-const prefixPath = (path) => `/${PATH_PREFIX}${path}`;
+function makeRequest(path, host, expectations = []) {
+  const initial = request
+    .get(path)
+    .set('Host', host)
+    .expectStandardHeaders();
+  
+  return expectations.reduce((r, expectation) => r.expect(...expectation), initial);
+}
+
+const previewPrefixPath = (path) => `/${PREVIEW_PATH_PREFIX}${path}`;
+const defaultPrefixPath = (path) => `/${DEFAULT_PATH_PREFIX}${path}`;
+previewPrefixPath.toString = () => 'preview path';
+defaultPrefixPath.toString = () => 'default path';
+
+const prefixPathFns = [
+  previewPrefixPath,
+  defaultPrefixPath
+];
 
 describe('parse-conf', () => {
   it('removes `daemon` configuration', () => {
@@ -99,31 +117,29 @@ describe('Health check', () => {
 describe('For `federalist-proxy-staging` hosts', () => {
   const host = 'federalist-proxy-staging.app.cloud.gov';
 
-  it('returns results from the SHARED bucket', () => {
-    return request
-      .get(prefixPath('/bucket.html'))
-      .set('Host', host)
-      .expectStandardHeaders()
-      .expect(200)
-      .expect(/shared/i);
-  });
+  for (const prefixPathFn of prefixPathFns) {
+    describe(`with the ${prefixPathFn}`, () => {
+      it('returns results from the SHARED bucket', () => {
+        return makeRequest(prefixPathFn('/bucket.html'), host, [[200], [/shared/i]]);
+      });
 
-  describe('Paths', pathSpecs(host));
+      describe('Paths', pathSpecs(host, prefixPathFn));
+    });
+  }
 });
 
 describe('For non-`federalist-proxy-staging` hosts', () => {
   const host = 'foobar.app.cloud.gov';
 
-  it('returns results from the DEDICATED bucket', () => {
-    return request
-      .get(prefixPath('/bucket.html'))
-      .set('Host', host)
-      .expectStandardHeaders()
-      .expect(200)
-      .expect(/dedicated/i);
-  });
-
-  describe('Paths', pathSpecs(host));
+  for (const prefixPathFn of prefixPathFns) {
+    describe(`with the ${prefixPathFn}`, () => {
+      it('returns results from the DEDICATED bucket', () => {
+        return makeRequest(prefixPathFn('/bucket.html'), host, [[200], [/dedicated/i]]);
+      });
+    
+      describe('Paths', pathSpecs(host, prefixPathFn));
+    });
+  }
 });
 
 describe('For `includeSubdomains` specific hosts', () => {
@@ -131,97 +147,78 @@ describe('For `includeSubdomains` specific hosts', () => {
   for(const sub of subs) {
     const host = `${sub}.app.cloud.gov`;
 
-    it('returns results from the DEDICATED bucket', () => {
-      return request
-        .get(prefixPath('/bucket.html'))
-        .set('Host', host)
-        .expectStandardHeaders()
-        .expect(200)
-        .expect(/dedicated/i);
-    });
+    for (const prefixPathFn of prefixPathFns) {
+      describe(`with the ${prefixPathFn}`, () => {
+        it('returns results from the DEDICATED bucket', () => {
+          return makeRequest(prefixPathFn('/bucket.html'), host, [[200], [/dedicated/i]]);
+        });
 
-    describe('Headers', () => {
-      it('includes expected headers', () => {
-        return request
-          .get(prefixPath('/file'))
-          .set('Host', host)
-          .expectStandardHeaders()
-          .expect(200)
-          .expect('Content-Type', /charset=utf-8/)
-          .expect('Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains')
-      });
+        describe('Headers', () => {
+          it('includes expected headers', () => {
+            return makeRequest(prefixPathFn('/file'), host, [
+              [200],
+              ['Content-Type', /charset=utf-8/],
+              ['Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains']
+            ]);
+          });
 
-      describe('For .cfm files', () => {
-        it('includes text/html content type header', () => {
-          return request
-            .get(prefixPath('/test/helloworld.cfm'))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(200)
-            .expect('Content-Type', /text\/html/)
-            .expect('Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains');
+          describe('For .cfm files', () => {
+            it('includes text/html content type header', () => {
+              return makeRequest(prefixPathFn('/test/helloworld.cfm'), host, [
+                [200],
+                ['Content-Type', /text\/html/],
+                ['Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains'],
+              ]);
+            });
+          });
+            
+          describe('Paths', pathSpecs(host, prefixPathFn));
         });
       });
-    });
-    describe('Paths', pathSpecs(host));
+    }
   }
 });
 
-function pathSpecs(host) {
+function pathSpecs(host, prefixPathFn) {
   return () => {
     describe('/<some-path>', () => {
       describe('when the file is a redirect object', () => {
-        it('serves the content at the redirect location', () => {
-          const path = '/redirect-object';
-          
-          return request
-            .get(prefixPath(path))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(200)
-            .expect('Content-Type', 'text/html; charset=utf-8')
-            .expect(/redirect-object-target/i);
+        it('serves the content at the redirect location', () => {          
+          return makeRequest(prefixPathFn('/redirect-object'), host, [
+            [200],
+            ['Content-Type', 'text/html; charset=utf-8'],
+            [/redirect-object-target/i],
+          ]);
         });
       });
 
       describe('when the file exists with a content type', () => {
         it('serves the file', () => {
-          const path = '/file';
-
-          return request
-            .get(prefixPath(path))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(200)
-            .expect('Content-Type', 'text/html; charset=utf-8')
-            .expect(/file/i);
+          return makeRequest(prefixPathFn('/file'), host, [
+            [200],
+            ['Content-Type', 'text/html; charset=utf-8'],
+            [/file/i],
+          ]);
         });
       });
 
       describe('when the file exists without a content type', () => {
         it('serves the file with S3 default content type', () => {
-          const path = '/no-content-type';
-
-          return request
-            .get(prefixPath(path))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(200)
-            .expect('Content-Type', 'application/octet-stream')
+          return makeRequest(prefixPathFn('/no-content-type'), host, [
+            [200],
+            ['Content-Type', 'application/octet-stream'],
+          ])
             .then(matchBody(/no-content-type/i));
         });
       });
 
       describe('when the file does not exist', () => {
         it('serves the default 404.html', () => {
-          const path = '/unicorn';
-
-          return request
-            .get(prefixPath(path))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(404)
-            .expect(/4044444444/i);
+          return makeRequest(prefixPathFn('/unicorn'), host, [
+            [404],
+            // Should ALWAYS return the *bucket* 404
+            [/default - 4044444444/i],
+          ]);
         });
       })
     });
@@ -229,25 +226,20 @@ function pathSpecs(host) {
     describe('/<some-path>/', () => {
       describe('when /<some-path>/index.html exists', () => {
         it('serves /<some-path>/index.html', () => {
-          const path = '/file/';
-          return request
-            .get(prefixPath(path))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(200)
-            .expect(/file2/i);
+          return makeRequest(prefixPathFn('/file/'), host, [
+            [200],
+            [/file2/i],
+          ]);
         });
       });
 
       describe('when /<some-path>/index.html does not exist', () => {
         it('serves the default 404.html', () => {
-          const path = '/unicorn/';
-          return request
-            .get(prefixPath(path))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(404)
-            .expect(/4044444444/i);
+          return makeRequest(prefixPathFn('/unicorn/'), host, [
+            [404],
+            // Should ALWAYS return the *bucket* 404
+            [/default - 4044444444/i],
+          ]);
         });
       });
     });
@@ -255,13 +247,10 @@ function pathSpecs(host) {
     describe('/<some-path>/index.html', () => {
       describe('when /<some-path>/index.html exists', () => {
         it('serves /<some-path>/index.html', () => {
-          const path = '/file/index.html';
-          return request
-            .get(prefixPath(path))
-            .set('Host', host)
-            .expectStandardHeaders()
-            .expect(200)
-            .expect(/file2/i);
+          return makeRequest(prefixPathFn('/file/index.html'), host, [
+            [200],
+            [/file2/i],
+          ]);
         });
       });
     });
