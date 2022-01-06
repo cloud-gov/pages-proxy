@@ -2,3 +2,4 @@ name: federalist-proxy-dev
 memory: 96MB
 instances: 1
 shared-bucket: foobar
+domain: app\.cloud\.gov

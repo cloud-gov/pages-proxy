@@ -1,37 +1,63 @@
 version: '3'
 services:
-  mock:
-    image: node:12
+  mock-dedicated:
+    image: node:14
     volumes:
       - .:/app
     working_dir: /app
     command: ["node", "./bin/mock.js"]
     environment:
       PORT: 8001
+      BUCKET_TYPE: dedicated
+      PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
+      DEFAULT_PATH_PREFIX: 'site/owner/repo'
+  mock-shared:
+    image: node:14
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["node", "./bin/mock.js"]
+    environment:
+      PORT: 8001
+      BUCKET_TYPE: shared
+      PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
+      DEFAULT_PATH_PREFIX: 'site/owner/repo'
   nginx:
-    image: nginx:1
+    image: openresty/openresty:1.19.9.1-4-buster
     volumes:
       - .:/usr/share/nginx/html:ro
-      - ./tmp/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./tmp/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./mime.types:/etc/nginx/mime.types:ro
     restart: always
     depends_on:
-      - mock
+      - mock-dedicated
+      - mock-shared
   app:
-    image: node:12
+    image: node:14
     volumes:
       - .:/app
     working_dir: /app
     environment:
       # Used by variable substitution in `parse-conf.js`
       INCLUDE_SUBDOMAINS: 'foobaz|specific'
-      DEDICATED_S3_BUCKET_URL: 'http://mock:8001/dedicated'
       FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
-      FEDERALIST_S3_BUCKET_URL: 'http://mock:8001/shared'
+      MOCK_DEDICATED_S3_BUCKET_URL: 'http://mock-dedicated:8001'
+      MOCK_FEDERALIST_S3_BUCKET_URL: 'http://mock-shared:8001'
       PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: 8000
       DNS_RESOLVER: '127.0.0.11'
       # Determines the url to test against in the test suite
+      PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
+      DEFAULT_PATH_PREFIX: 'site/owner/repo'
       PROXY_URL: 'http://nginx:8000'
+      S3_ENDPOINT: s3-fips.us-gov-west-1.amazonaws.com
+      DEDICATED_AWS_ACCESS_KEY_ID: ${DEDICATED_AWS_ACCESS_KEY_ID}
+      DEDICATED_AWS_SECRET_ACCESS_KEY: ${DEDICATED_AWS_SECRET_ACCESS_KEY}
+      DEDICATED_S3_BUCKET: cg-31e28f05-33dd-4c8d-ba13-19b1aa956257
+      SHARED_AWS_ACCESS_KEY_ID: ${SHARED_AWS_ACCESS_KEY_ID}
+      SHARED_AWS_SECRET_ACCESS_KEY: ${SHARED_AWS_SECRET_ACCESS_KEY}
+      SHARED_S3_BUCKET: cg-69dc2242-d953-47ca-9a72-b0236b631de8
+      AWS_REGION: us-gov-west-1
+      DOMAIN: app\.cloud\.gov
     depends_on:
       - nginx

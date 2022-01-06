@@ -17,6 +17,20 @@ maybe-configure-production: &maybe-configure-production
           echo "export CF_APP=federalist-proxy" >> $BASH_ENV
           echo "export CF_VARS_FILE=./.cloudgov/vars/production.yml" >> $BASH_ENV
 
+maybe-configure-staging: &maybe-configure-staging
+  when:
+    condition:
+      equal: [ staging, << pipeline.git.branch >> ]
+    steps:
+      run:
+        name: Setup Staging Environment
+        command: |
+          echo "export CF_USERNAME=$CF_USERNAME_STAGING" >> $BASH_ENV
+          echo "export CF_PASSWORD=$CF_PASSWORD_STAGING" >> $BASH_ENV
+          echo "export CF_SPACE=staging" >> $BASH_ENV
+          echo "export CF_APP=federalist-proxy-staging" >> $BASH_ENV
+          echo "export CF_VARS_FILE=./.cloudgov/vars/staging.yml" >> $BASH_ENV
+
 install-and-log-into-cloudgov: &install-and-log-into-cloudgov
   run:
     name: Install and log into CF
@@ -46,10 +60,27 @@ jobs:
           command: docker-compose run --no-deps app npm install
       - run:
           name: Parse Config
-          command: docker-compose run --no-deps app node ./bin/parse-conf.js          
+          command: docker-compose run --no-deps app npm run parse
       - run:
           name: Run Tests
           command: docker-compose run app npm test
+
+  build-and-test-integration:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: docker-compose run --no-deps app npm install
+      - run:
+          name: Parse Config
+          command: docker-compose run --no-deps app npm run parse:integration
+      - run:
+          name: Run Integration Tests
+          command: docker-compose run app npm run test:integration
+      - run:
+          name: Run Integration Tests with Website Configuration
+          command: docker-compose run app npm run test:integration:website-config
 
   deploy:
     machine: true
@@ -58,6 +89,7 @@ jobs:
     steps:
       - checkout
       - *maybe-configure-production
+      - *maybe-configure-staging
       - *install-and-log-into-cloudgov
       - deploy:
           command: ./.cloudgov/deploy.sh
@@ -67,6 +99,7 @@ jobs:
     machine: true
     steps:
       - *maybe-configure-production
+      - *maybe-configure-staging
       - *install-and-log-into-cloudgov
       - run:
           name: Recycle the application
@@ -81,13 +114,16 @@ workflows:
   build-test-deploy:
     jobs:
       - build-and-test
+      - build-and-test-integration
       - deploy:
           requires:
             - build-and-test
+            - build-and-test-integration
           filters:
             branches:
               only:
                 - main
+                - staging
   nightly:
     triggers:
       - schedule:
@@ -96,5 +132,6 @@ workflows:
             branches:
               only:
                 - main
+                - staging
     jobs:
       - recycle
