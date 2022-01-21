@@ -155,7 +155,7 @@ describe('For `includeSubdomains` specific hosts', () => {
 
         describe('Headers', () => {
           it('includes expected headers', () => {
-            return makeRequest(prefixPathFn('/file'), host, [
+            return makeRequest(prefixPathFn('/file/'), host, [
               [200],
               ['Content-Type', /charset=utf-8/],
               ['Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains']
@@ -183,51 +183,57 @@ function pathSpecs(host, prefixPathFn) {
   return () => {
     describe('/<some-path>', () => {
       describe('when the file is a redirect object', () => {
-        it('serves the content at the redirect location', () => {          
-          return makeRequest(prefixPathFn('/redirect-object'), host, [
-            [200],
-            ['Content-Type', 'text/html; charset=utf-8'],
-            [/redirect-object-target/i],
+        it('redirects to /<some-path>/', () => {
+          const path = prefixPathFn('/redirect-object');
+          return makeRequest(path, host, [
+            [301],
+            ['Content-Type', 'text/html'],
+            ['Location', `http://${host}${path}/`],
           ]);
         });
 
         describe('with query parameters', () => {
-          it('serves the content at the redirect location', () => {          
-            return makeRequest(prefixPathFn('/redirect-object?foo.bar=baz'), host, [
-              [200],
-              ['Content-Type', 'text/html; charset=utf-8'],
-              [/redirect-object-target/i],
+          it('redirects to /<some-path>/?<query-params>', () => {
+            const path = prefixPathFn('/redirect-object');
+            const query = '?foo.bar=baz';
+            return makeRequest(`${path}${query}`, host, [
+              [301],
+              ['Content-Type', 'text/html'],
+              ['Location', `http://${host}${path}/${query}`],
             ]);
           });
         });
       });
 
       describe('when the file exists with a content type', () => {
-        it('serves the file', () => {
-          return makeRequest(prefixPathFn('/file'), host, [
-            [200],
-            ['Content-Type', 'text/html; charset=utf-8'],
-            [/file/i],
+        it('redirects to /<some-path>/', () => {
+          const path = prefixPathFn('/file');
+          return makeRequest(path, host, [
+            [301],
+            ['Content-Type', 'text/html'],
+            ['Location', `http://${host}${path}/`],
           ]);
         });
       });
 
       describe('when the file exists without a content type', () => {
-        it('serves the file with S3 default content type', () => {
-          return makeRequest(prefixPathFn('/no-content-type'), host, [
-            [200],
-            ['Content-Type', 'application/octet-stream'],
-          ])
-            .then(matchBody(/no-content-type/i));
+        it('redirects to /<some-path>/', () => {
+          const path = prefixPathFn('/no-content-type')
+          return makeRequest(path, host, [
+            [301],
+            ['Content-Type', 'text/html'],
+            ['Location', `http://${host}${path}/`],
+          ]);
         });
       });
 
       describe('when the file does not exist', () => {
-        it('serves the default 404.html', () => {
-          return makeRequest(prefixPathFn('/unicorn'), host, [
-            [404],
-            // Should ALWAYS return the *bucket* 404
-            [/default - 4044444444/i],
+        it('redirects to /<some-path>/', () => {
+          const path = prefixPathFn('/unicorn');
+          return makeRequest(path, host, [
+            [301],
+            ['Content-Type', 'text/html'],
+            ['Location', `http://${host}${path}/`],
           ]);
         });
       })
@@ -235,11 +241,12 @@ function pathSpecs(host, prefixPathFn) {
 
     describe('/<some-path-with-period>', () => {
       describe('when the file is a redirect object', () => {
-        it('serves the content at the redirect location', () => {          
-          return makeRequest(prefixPathFn('/foo/path.with.period/bar'), host, [
-            [200],
-            ['Content-Type', 'text/html; charset=utf-8'],
-            [/path-with-period-target/i],
+        it('redirects to /<some-path-with-period>/', () => {
+          const path = prefixPathFn('/foo/path.with.period/bar');
+          return makeRequest(path, host, [
+            [301],
+            ['Content-Type', 'text/html'],
+            ['Location', `http://${host}${path}/`],
           ]);
         });
       });
