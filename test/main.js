@@ -188,7 +188,7 @@ function pathSpecs(host, prefixPathFn) {
           return makeRequest(path, host, [
             [301],
             ['Content-Type', 'text/html'],
-            ['Location', `https://${host}${path}/`],
+            ['Location', `${path}/`],
           ]);
         });
 
@@ -199,7 +199,7 @@ function pathSpecs(host, prefixPathFn) {
             return makeRequest(`${path}${query}`, host, [
               [301],
               ['Content-Type', 'text/html'],
-              ['Location', `https://${host}${path}/${query}`],
+              ['Location', `${path}/${query}`],
             ]);
           });
         });
@@ -211,7 +211,7 @@ function pathSpecs(host, prefixPathFn) {
           return makeRequest(path, host, [
             [301],
             ['Content-Type', 'text/html'],
-            ['Location', `https://${host}${path}/`],
+            ['Location', `${path}/`],
           ]);
         });
       });
@@ -222,7 +222,7 @@ function pathSpecs(host, prefixPathFn) {
           return makeRequest(path, host, [
             [301],
             ['Content-Type', 'text/html'],
-            ['Location', `https://${host}${path}/`],
+            ['Location', `${path}/`],
           ]);
         });
       });
@@ -233,7 +233,7 @@ function pathSpecs(host, prefixPathFn) {
           return makeRequest(path, host, [
             [301],
             ['Content-Type', 'text/html'],
-            ['Location', `https://${host}${path}/`],
+            ['Location', `${path}/`],
           ]);
         });
       })
@@ -246,7 +246,7 @@ function pathSpecs(host, prefixPathFn) {
           return makeRequest(path, host, [
             [301],
             ['Content-Type', 'text/html'],
-            ['Location', `https://${host}${path}/`],
+            ['Location', `${path}/`],
           ]);
         });
       });
