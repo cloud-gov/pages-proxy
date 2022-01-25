@@ -161,16 +161,6 @@ describe('For `includeSubdomains` specific hosts', () => {
               ['Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains']
             ]);
           });
-
-          describe('For .cfm files', () => {
-            it('includes text/html content type header', () => {
-              return makeRequest(prefixPathFn('/test/helloworld.cfm'), host, [
-                [200],
-                ['Content-Type', /text\/html/],
-                ['Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains'],
-              ]);
-            });
-          });
             
           describe('Paths', pathSpecs(host, prefixPathFn));
         });

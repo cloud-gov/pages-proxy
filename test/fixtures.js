@@ -19,10 +19,6 @@ function getFixtures(bucketType) {
       content: 'file2',
       extras: { ContentType: 'text/html' },
     }),
-    ...prefixPaths('test/helloworld.cfm', {
-      content: '',
-      extras: { ContentType: 'foobar' },
-    }),
     ...prefixPaths('bucket.html', {
       content: bucketType,
       extras: { ContentType: 'text/html' },
