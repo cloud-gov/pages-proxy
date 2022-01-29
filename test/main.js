@@ -29,6 +29,16 @@ function makeRequest(path, host, expectations = []) {
   return expectations.reduce((r, expectation) => r.expect(...expectation), initial);
 }
 
+function makeCloudfrontRequest(path, host, expectations = []) {
+  const initial = request
+    .get(path)
+    .set('Host', host)
+    .set('User-Agent', 'Amazon Cloudfront')
+    .expectStandardHeaders();
+  
+  return expectations.reduce((r, expectation) => r.expect(...expectation), initial);
+}
+
 const previewPrefixPath = (path) => `/${PREVIEW_PATH_PREFIX}${path}`;
 const defaultPrefixPath = (path) => `/${DEFAULT_PATH_PREFIX}${path}`;
 previewPrefixPath.toString = () => 'preview path';
@@ -227,6 +237,21 @@ function pathSpecs(host, prefixPathFn) {
           ]);
         });
       })
+
+      describe('when from cloudfront', () => {
+        it('redirects to /<some-path>/ without the prefix', () => {
+          const path = prefixPathFn('/unicorn');
+          const location = prefixPathFn.toString() === 'preview path'
+            ? '/branch/name/unicorn/'
+            : '/unicorn/';
+
+          return makeCloudfrontRequest(path, host, [
+            [301],
+            ['Content-Type', 'text/html'],
+            ['Location', location],
+          ]);
+        })
+      });
     });
 
     describe('/<some-path-with-period>', () => {
