@@ -25,8 +25,8 @@ services:
   nginx:
     image: openresty/openresty:1.19.9.1-4-buster
     volumes:
-      - .:/usr/share/nginx/html:ro
-      - ./tmp/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./public/robots.txt:/usr/share/nginx/html/public/robots.txt:ro
+      - ./tmp/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./mime.types:/etc/nginx/mime.types:ro
     restart: always
     depends_on:
