@@ -238,20 +238,49 @@ function pathSpecs(host, prefixPathFn) {
         });
       })
 
-      describe('when from cloudfront', () => {
+      if(prefixPathFn.toString() === 'preview path') {
+        it('redirects to /<some-path>/ with the prefix', () => {
+          const path = prefixPathFn('/unicorn');
+          const location = prefixPathFn('/unicorn/');
+
+          return makeRequest(path, host, [
+            [301],
+            ['Content-Type', 'text/html'],
+            ['Location', location],
+          ]);
+        });
+
+        describe('for potential open redirects', () => {
+          it('returns a 404', () => {
+            const path = prefixPathFn(encodeURI('/\\\\example.com/%2e%2e%2f')); // /%5C%5Cexample.com/%252e%252e%252f
+
+            return makeRequest(path, host, [
+              [404],
+            ]);
+          });
+        });
+      } else {
         it('redirects to /<some-path>/ without the prefix', () => {
           const path = prefixPathFn('/unicorn');
-          const location = prefixPathFn.toString() === 'preview path'
-            ? '/branch/name/unicorn/'
-            : '/unicorn/';
+          const location = '/unicorn/';
 
           return makeCloudfrontRequest(path, host, [
             [301],
             ['Content-Type', 'text/html'],
             ['Location', location],
           ]);
-        })
-      });
+        });
+
+        describe('for potential open redirects', () => {
+          it('returns a 404', () => {
+            const path = prefixPathFn(encodeURI('/\\\\example.com/%2e%2e%2f')); // /%5C%5Cexample.com/%252e%252e%252f
+
+            return makeCloudfrontRequest(path, host, [
+              [404],
+            ]);
+          });
+        });
+      }
     });
 
     describe('/<some-path-with-period>', () => {
