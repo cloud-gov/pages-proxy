@@ -296,6 +296,26 @@ function pathSpecs(host, prefixPathFn) {
       });
     });
 
+    describe('/<paths-to-docker-files>', () => {
+      describe('when a Dockerfile is requested', () => {
+        it('serves the default 404.html', () => {
+          const path = prefixPathFn('/Dockerfile');
+          return makeRequest(path, host, [
+            [404],
+          ]);
+        });
+      });
+
+      describe('when a docker-compose.yml file is requested', () => {
+        it('serves the default 404.html', () => {
+          const path = prefixPathFn('/docker-compose.yml');
+          return makeRequest(path, host, [
+            [404],
+          ]);
+        });
+      });
+    });
+
     describe('/<some-path>/', () => {
       describe('when /<some-path>/index.html exists', () => {
         it('serves /<some-path>/index.html', () => {

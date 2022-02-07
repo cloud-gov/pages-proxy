@@ -51,6 +51,14 @@ function getFixtures(bucketType) {
       content: '<h1>default - 4044444444</h1>',
       extras: { ContentType: 'text/html' },
     },
+    ...prefixPaths('Dockerfile', {
+      content: 'Docker!',
+      extras: { ContentType: 'text/plain' },
+    }),
+    ...prefixPaths('docker-compose.yml', {
+      content: 'Docker Docker Docker!',
+      extras: { ContentType: 'text/plain' },
+    }),
   };
 };
 
