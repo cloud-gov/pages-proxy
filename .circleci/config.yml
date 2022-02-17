@@ -52,7 +52,8 @@ log-out-of-cloudgov: &log-out-of-cloudgov
 ##################################
 jobs:
   build-and-test:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout
       - run:
