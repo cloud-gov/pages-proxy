@@ -14,9 +14,20 @@ const {
 supertest.Test.prototype.expectStandardHeaders = function() {
   this.expect('X-Frame-Options', 'SAMEORIGIN');
   this.expect('X-Server', 'Federalist');
+  this.expect('X-Robots-Tag', 'none');
   this.expect('Strict-Transport-Security', /max-age=31536000; preload/);
+
   return this;
 }
+
+supertest.Test.prototype.expectCloudfrontHeaders = function() {
+  this.expect('X-Frame-Options', 'SAMEORIGIN');
+  this.expect('X-Server', 'Federalist');
+  this.expect('X-Robots-Tag', 'all');
+  this.expect('Strict-Transport-Security', /max-age=31536000; preload/);
+
+  return this;
+};
 
 const request = supertest(PROXY_URL);
 
@@ -34,8 +45,8 @@ function makeCloudfrontRequest(path, host, expectations = []) {
     .get(path)
     .set('Host', host)
     .set('User-Agent', 'Amazon Cloudfront')
-    .expectStandardHeaders();
-  
+    .expectCloudfrontHeaders();
+
   return expectations.reduce((r, expectation) => r.expect(...expectation), initial);
 }
 
@@ -105,13 +116,11 @@ describe('parse-conf', () => {
 });
 
 describe('robots.txt', () => {
-  it('is available', () => {
+  it('is not present', () => {
     return request
       .get('/robots.txt')
       .expectStandardHeaders()
-      .expect(200)
-      .expect('Content-Type', /text\/plain/)
-      .expect(/Disallow/);
+      .expect(404)
   });
 });
 
