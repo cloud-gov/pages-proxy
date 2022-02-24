@@ -14,7 +14,7 @@ const {
 supertest.Test.prototype.expectStandardHeaders = function() {
   this.expect('X-Frame-Options', 'SAMEORIGIN');
   this.expect('X-Server', 'Federalist');
-  this.expect('X-Robots-Tag', 'noindex');
+  this.expect('X-Robots-Tag', 'none');
   this.expect('Strict-Transport-Security', /max-age=31536000; preload/);
 
   return this;
