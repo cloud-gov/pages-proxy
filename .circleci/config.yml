@@ -52,7 +52,8 @@ log-out-of-cloudgov: &log-out-of-cloudgov
 ##################################
 jobs:
   build-and-test:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout
       - run:
@@ -66,7 +67,8 @@ jobs:
           command: docker-compose run app npm test
 
   build-and-test-integration:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout
       - run:
@@ -83,7 +85,8 @@ jobs:
           command: docker-compose run app npm run test:integration:website-config
 
   deploy:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     environment:
       CF_MANIFEST: ./.cloudgov/manifest.yml
     steps:
@@ -96,7 +99,8 @@ jobs:
       - *log-out-of-cloudgov
 
   recycle:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - *maybe-configure-production
       - *maybe-configure-staging
