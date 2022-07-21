@@ -109,6 +109,41 @@ test: &test
 
 jobs:
 
+  - name: test
+    plan:
+    - get: src
+      resource: pr
+      trigger: true
+      version: every
+
+    - put: src
+      resource: pr
+      params:
+        path: src
+        status: pending
+        base_context: concourse
+        context: test
+
+    - do: *test
+
+    on_failure:
+      put: src
+      resource: pr
+      params:
+        path: src
+        status: failure
+        base_context: concourse
+        context: test
+
+    on_success:
+      put: src
+      resource: pr
+      params:
+        path: src
+        status: success
+        base_context: concourse
+        context: test
+
   - name: test-and-deploy-staging
     plan:
       - get: src
@@ -286,6 +321,16 @@ resources:
       uri: ((proxy-repository-url))
       branch: main
 
+  - name: pr
+    type: pull-request
+    check_every: 1m
+    source:
+      repository: ((proxy-repository-url))
+      access_token: ((gh-access-token))
+      base_branch: main
+      disable_forks: true
+      ignore_drafts: false
+
   - name: nightly
     type: time
     source:
@@ -335,6 +380,11 @@ resource_types:
     source:
       repository: cfcommunity/slack-notification-resource
 
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: teliaoss/github-pr-resource
+
 ############################
 # Groups - Use to better visualize and track jobs in CI
 #   *Note: Maybe worth removing after migration to Pages
@@ -342,10 +392,14 @@ resource_types:
 groups:
   - name: all
     jobs:
+    - test
     - test-and-deploy-staging
     - nightly-tasks-staging
     - test-and-deploy-production
     - nightly-tasks-production
+  - name: pull-requests
+    jobs:
+    - test
   - name: pages-staging
     jobs:
     - test-and-deploy-staging
