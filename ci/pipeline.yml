@@ -311,21 +311,21 @@ resources:
     type: git
     icon: github
     source:
-      uri: ((proxy-repository-url))
+      uri: ((git-base-url))/((proxy-repository-path))
       branch: staging
 
   - name: src-production
     type: git
     icon: github
     source:
-      uri: ((proxy-repository-url))
+      uri: ((git-base-url))/((proxy-repository-path))
       branch: main
 
   - name: pr
     type: pull-request
     check_every: 1m
     source:
-      repository: 18F/federalist-proxy
+      repository: ((proxy-repository-path))
       access_token: ((gh-access-token))
       base_branch: main
       disable_forks: true
