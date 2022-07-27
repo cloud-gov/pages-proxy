@@ -52,13 +52,47 @@ variable will need to be updated in the `manifest.yml`.
 ### Running tests against the mock server
 ```
   docker-compose run --no-deps --rm app npm run parse
-  docker-compose run --rm app npm test 
+  docker-compose run --rm app npm test
 ```
 
 ### Running tests against s3 buckets
 ```
   docker-compose run --no-deps --rm app npm run parse:integration
   docker-compose run --rm app npm run test:integration
+```
+
+## Deploying
+The proxy uses Councourse CI to run tests and deploy to different environments in the cloud.gov Pages organization. The pipeline is defined in the [`ci/pipeline.yml`]('./ci/pipeline.yml') file and supporting CI scripts are found in the [`ci`]('./ci') directory. This pipeline is using Concourse's [`instanced pipeline`](https://concourse-ci.org/instanced-pipelines.html) feature to minimize boilerplate configuration when declaring tasks and resources for each deployment environment.
+
+### Pipeline instance variables
+Two instances of the pipeline are set for the `staging` and `production` environments. Each instance of the pipeline has two instance variables associated to it: `deploy-env` & `git-branch`.
+
+|Instance Variable |Staging Environment| Production Environment|
+--- | --- | ---|
+|`deploy-env`|`staging`|`production`|
+|`git-branch`|`staging`|`main`|
+
+### Setting up the pipeline
+The pipeline and each of it's instances will only needed to be set once per instance to create the initial pipeline. After the pipelines are set, updates to the respective `git-branch` source will automatically set the pipeline with any updates. See the [`set_pipeline` step](https://concourse-ci.org/set-pipeline-step.html) for more information. Run the following command with the fly CLI to set a pipeline instance:
+
+```bash
+$ fly -t <Concourse CI Target Name> set-pipeline -p proxy \
+  -c ci/pipeline.yml \
+  -i git-branch=main \
+  -i deploy-env=production
+```
+
+### Getting or deleting a pipeline instance from the CLI
+To get a pipeline instance's config or destroy a pipeline instance, Run the following command with the fly CLI to set a pipeline:
+
+```bash
+## Get a pipeline instance config
+$ fly -t <Concourse CI Target Name> get-pipeline \
+  -p proxy/deploy-env:production,git-branch:main
+
+## Destroy a pipeline
+$ fly -t <Concourse CI Target Name> destroy-pipeline \
+  -p proxy/deploy-env:production,git-branch:main
 ```
 
 ## Notes
