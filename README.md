@@ -94,7 +94,7 @@ Some credentials in this pipeline are "compound" credentials that use the pipeli
 |**`((gh-access-token))`**| The Github access token|:x:|
 
 ### Setting up the pipeline
-The pipeline and each of it's instances will only needed to be set once per instance to create the initial pipeline. After the pipelines are set, updates to the respective `git-branch` source will automatically set the pipeline with any updates. See the [`set_pipeline` step](https://concourse-ci.org/set-pipeline-step.html) for more information. Run the following command with the fly CLI to set a pipeline instance:
+The pipeline and each of it's instances will only need to be set once per instance to create the initial pipeline. After the pipelines are set, updates to the respective `git-branch` source will automatically set the pipeline with any updates. See the [`set_pipeline` step](https://concourse-ci.org/set-pipeline-step.html) for more information. Run the following command with the fly CLI to set a pipeline instance:
 
 ```bash
 $ fly -t <Concourse CI Target Name> set-pipeline -p proxy \
