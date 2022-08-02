@@ -72,7 +72,7 @@ Two instances of the pipeline are set for the `staging` and `production` environ
 |**`deploy-env`**|`staging`|`production`|
 |**`git-branch`**|`staging`|`main`|
 
-## Pipeline credentials
+### Pipeline credentials
 Concourse CI integrates directly with [Credhub](https://docs.cloudfoundry.org/credhub/) to provide access to credentials/secrets at job runtime. When a job is started, Concourse will resolve the parameters within the pipeline with the latest credentials using the double parentheses notation (ie. `((<credential-name>))`). See more about the [credentials lookup rules](https://concourse-ci.org/credhub-credential-manager.html#credential-lookup-rules).
 
 Some credentials in this pipeline are "compound" credentials that use the pipeline's instance variable in conjuction with its parameterized variables to pull the correct Credhub credentials based on the pipeline instance. The following parameters are used in the proxy pipeline:
@@ -115,6 +115,9 @@ $ fly -t <Concourse CI Target Name> get-pipeline \
 $ fly -t <Concourse CI Target Name> destroy-pipeline \
   -p proxy/deploy-env:production,git-branch:main
 ```
+
+### Production federalist-proxy pipeline transition
+We are currently migrating from Federalist to Pages. The migration includes maintaining the former "Federalist" components of the platform to smoothly transition our customers and their sites. The CI configuration for this deployment pipeline can be found in [`ci/federalist-pipeline.yml`](./ci/federalist-pipeline.yml). This pipeline will serve to manage the existing `federalist-proxy` during the transition until it can be decommissioned.
 
 ## Notes
 ### When making changes
