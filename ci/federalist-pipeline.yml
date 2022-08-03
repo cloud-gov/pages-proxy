@@ -107,11 +107,8 @@ jobs:
     - get: src
       resource: src-production
       trigger: true
-    - set_pipeline: proxy
+    - set_pipeline: federalist-proxy
       file: src/ci/federalist-pipeline.yml
-      instance_vars:
-        deploy-env: production
-        git-branch: main
 
   - name: test-pr-main
     plan:
