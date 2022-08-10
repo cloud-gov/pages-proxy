@@ -13,17 +13,7 @@ If the rolling deployment fails for any reason, make sure to clean up by running
 
 ## Proxying a Site
 
-When a site is added to Pages, it will be available through this proxy at `https://pages-proxy.app.cloud.gov/site/<owner>/<repo>`. When the site is ready to go live, a CloudFront distribution with the proxy URL as its origin can be provisioned.
-
-```shell
-cf create-service cdn-route cdn-route YOUR.URL.gov-route -c '
-  {
-    "domain": "YOUR.URL.gov",
-    "origin": "pages-proxy.app.cloud.gov",
-    "path": "/site/org/repo-name"
-  }
-'
-```
+When a site is added to Pages, it will be available through this proxy at `https://<site-bucket>.sites.pages.cloud.gov/site/<owner>/<repo>`. When the site is ready to go live, a CloudFront distribution with the proxy URL as its origin can be provisioned. This is done via the Admin UI panel in the '/domains' tab by creating a domain, ensuring [correct CNAME configuration](https://federalist.18f.gov/documentation/custom-domains/), and clicking "Provision".
 
 ## Headers
 
