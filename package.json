@@ -1,12 +1,12 @@
 {
-  "name": "federalist-proxy",
+  "name": "pages-proxy",
   "version": "1.0.0",
   "license": "CC0-1.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/18f/fedrealist-proxy"
+    "url": "https://github.com/cloud-gov/pages-proxy"
   },
-  "homepage": "https://github.com/18f/federalist-proxy",
+  "homepage": "https://github.com/cloud-gov/pages-proxy",
   "author": "Amir Reavis-Bey",
   "private": true,
   "engines": {
