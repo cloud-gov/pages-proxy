@@ -167,7 +167,7 @@ jobs:
           <<: *env-cf
           CF_APP_NAME: federalist-proxy
           CF_MANIFEST: .cloudgov/manifest.yml
-          CF_VARS_FILE: .cloudgov/vars/production.yml
+          CF_VARS_FILE: .cloudgov/vars/federalist-production.yml
         on_failure:
           try:
             task: cancel-api-deployment

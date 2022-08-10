@@ -39,7 +39,7 @@ services:
     environment:
       # Used by variable substitution in `parse-conf.js`
       INCLUDE_SUBDOMAINS: 'foobaz|specific'
-      FEDERALIST_PROXY_SERVER_NAME: 'federalist-proxy-staging'
+      PAGES_PROXY_SERVER_NAME: 'pages-proxy-staging'
       MOCK_DEDICATED_S3_BUCKET_URL: 'http://mock-dedicated:8001'
       MOCK_FEDERALIST_S3_BUCKET_URL: 'http://mock-shared:8001'
       PROXY_WWW: '/usr/share/nginx/html'

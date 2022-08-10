@@ -13,7 +13,7 @@ const {
 
 supertest.Test.prototype.expectStandardHeaders = function() {
   this.expect('X-Frame-Options', 'SAMEORIGIN');
-  this.expect('X-Server', 'Federalist');
+  this.expect('X-Server', 'Cloud.gov Pages');
   this.expect('X-Robots-Tag', 'none');
   this.expect('Strict-Transport-Security', /max-age=31536000; preload/);
 
@@ -22,7 +22,7 @@ supertest.Test.prototype.expectStandardHeaders = function() {
 
 supertest.Test.prototype.expectCloudfrontHeaders = function() {
   this.expect('X-Frame-Options', 'SAMEORIGIN');
-  this.expect('X-Server', 'Federalist');
+  this.expect('X-Server', 'Cloud.gov Pages');
   this.expect('X-Robots-Tag', 'all');
   this.expect('Strict-Transport-Security', /max-age=31536000; preload/);
 
@@ -133,8 +133,8 @@ describe('Health check', () => {
   });
 });
 
-describe('For `federalist-proxy-staging` hosts', () => {
-  const host = 'federalist-proxy-staging.app.cloud.gov';
+describe('For `pages-proxy-staging` hosts', () => {
+  const host = 'pages-proxy-staging.app.cloud.gov';
 
   for (const prefixPathFn of prefixPathFns) {
     describe(`with the ${prefixPathFn}`, () => {
@@ -147,7 +147,7 @@ describe('For `federalist-proxy-staging` hosts', () => {
   }
 });
 
-describe('For non-`federalist-proxy-staging` hosts', () => {
+describe('For non-`pages-proxy-staging` hosts', () => {
   const host = 'foobar.app.cloud.gov';
 
   for (const prefixPathFn of prefixPathFns) {

@@ -1,8 +1,6 @@
-# federalist-proxy
+# pages-proxy
 
-[![CircleCI](https://circleci.com/gh/18F/federalist-proxy.svg?style=svg)](https://circleci.com/gh/18F/federalist-proxy)
-
-Proxies traffic from the Federalist S3 bucket to a CDN broker. Ensures HTTPS and adds the proper headers.
+Proxies traffic from the Cloud.gov Pages (formerly Federalist) S3 bucket to a CDN broker. Ensures HTTPS and adds the proper headers.
 
 ## Usage
 
@@ -15,13 +13,13 @@ If the rolling deployment fails for any reason, make sure to clean up by running
 
 ## Proxying a Site
 
-When a site is added to Federalist, it will be available through this proxy at `https://federalist-proxy.app.cloud.gov/site/<owner>/<repo>`. When the site is ready to go live, a CloudFront distribution with the proxy URL as its origin can be provisioned.
+When a site is added to Pages, it will be available through this proxy at `https://pages-proxy.app.cloud.gov/site/<owner>/<repo>`. When the site is ready to go live, a CloudFront distribution with the proxy URL as its origin can be provisioned.
 
 ```shell
 cf create-service cdn-route cdn-route YOUR.URL.gov-route -c '
   {
     "domain": "YOUR.URL.gov",
-    "origin": "federalist-proxy.app.cloud.gov",
+    "origin": "pages-proxy.app.cloud.gov",
     "path": "/site/org/repo-name"
   }
 '
@@ -33,14 +31,14 @@ This proxy adds the following headers to the response from the S3 bucket:
 
 - Strict-Transport-Security: max-age=31536000; preload
 - X-Frame-Options: SAMEORIGIN
-- X-Server: Federalist
+- X-Server: Cloud.gov Pages
 
 ## Unique Site Headers
 
 To support sites with expanded HSTS headers, the proxy uses the
 {{ INCLUDE_SUBDOMAINS }} environment variable to identify these requests to provide
 the expanded header `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`.
-If these Federalist site domains change for any reason, the {{ INCLUDE_SUBDOMAINS }}
+If these site domains change for any reason, the {{ INCLUDE_SUBDOMAINS }}
 variable will need to be updated in the `manifest.yml`.
 
 ## Local setup
@@ -116,7 +114,7 @@ $ fly -t <Concourse CI Target Name> destroy-pipeline \
   -p proxy/deploy-env:production,git-branch:main
 ```
 
-### Production federalist-proxy pipeline transition
+### Production pages-proxy pipeline transition
 We are currently migrating from Federalist to Pages. The migration includes maintaining the former "Federalist" components of the platform to smoothly transition our customers and their sites. The CI configuration for this deployment pipeline can be found in [`ci/federalist-pipeline.yml`](./ci/federalist-pipeline.yml). This pipeline will serve to manage the existing `federalist-proxy` during the transition until it can be decommissioned.
 
 ## Notes
