@@ -5,7 +5,7 @@ applications:
   memory: ((memory))
   instances: ((instances))
   env:
-    FEDERALIST_PROXY_SERVER_NAME: ((name))
+    PAGES_PROXY_SERVER_NAME: ((name))
     FEDERALIST_S3_BUCKET_URL: https://((shared-bucket)).s3-fips.us-gov-west-1.amazonaws.com
     DEDICATED_S3_BUCKET_URL: https://$name.s3-fips.us-gov-west-1.amazonaws.com
     DNS_RESOLVER: '8.8.8.8'
