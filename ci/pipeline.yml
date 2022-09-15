@@ -15,7 +15,7 @@ node-image: &node-image
     type: docker-image
     source:
       repository: node
-      tag: 14
+      tag: 16
 
 cf-image: &cf-image
   platform: linux
