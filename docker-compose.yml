@@ -27,6 +27,7 @@ services:
     volumes:
       - ./tmp/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./mime.types:/etc/nginx/mime.types:ro
+      - ./redirects.conf:/usr/local/openresty/nginx/conf/redirects.conf:ro
     restart: always
     depends_on:
       - mock-dedicated

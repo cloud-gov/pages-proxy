@@ -17,9 +17,9 @@ function mapHeaders(extras = {}) {
     headers[headerName] = headerValue;
     return headers;
   }, {});
-  
+
   // simulate S3 by providing default content type
-  headers['Content-Type'] = headers['Content-Type'] ?? 'application/octet-stream'; 
+  headers['Content-Type'] = headers['Content-Type'] ?? 'application/octet-stream';
 
   return headers;
 }
@@ -31,9 +31,9 @@ const server = http.createServer((req, res) => {
   let statusText = 'Forbidden';
   let headers = {};
   let text = `Unknown path ${req.url}`;
-  
+
   const url = new URL(req.url, `http://${req.headers.host}`);
-  
+
   const route = routes[url.pathname.slice(1)];
 
   if (route) {
