@@ -90,8 +90,8 @@ Some credentials in this pipeline are "compound" credentials that use the pipeli
 |**`((git-base-url))`**|The base url to the git server's HTTP endpoint|:x:|
 |**`((proxy-repository-path))`**|The url path to the repository|:x:|
 |**`((gh-access-token))`**| The Github access token|:x:|
-|**`((pages-proxy-((deploy-env))-site-redirects))`**| The Github access token|:white_check_mark:|
-|**`((federalist-proxy-((deploy-env))-site-redirects))`**| The Github access token|:white_check_mark:|
+|**`((pages-proxy-((deploy-env))-site-redirects))`**|JSON array of redirect objects|:white_check_mark:|
+|**`((federalist-proxy-((deploy-env))-site-redirects))`**|JSON array of redirect objects|:white_check_mark:|
 
 ### Setting up the pipeline
 The pipeline and each of it's instances will only need to be set once per instance to create the initial pipeline. After the pipelines are set, updates to the respective `git-branch` source will automatically set the pipeline with any updates. See the [`set_pipeline` step](https://concourse-ci.org/set-pipeline-step.html) for more information. Run the following command with the fly CLI to set a pipeline instance:

@@ -1,3 +1,4 @@
+const { rm, readFile } = require('fs/promises');
 const { expect } = require('chai');
 const supertest = require('supertest');
 const { redirects } = require('./fixtures');
@@ -5,6 +6,7 @@ const {
   cleanPath,
   createRedirect,
   parseEnv,
+  run,
 } = require('../bin/utils');
 
 const {
@@ -126,6 +128,7 @@ describe('Create Redirects Utils', () => {
       expect(() => createRedirect(redirect)).to.throw('Target must be defined for redirect.');
     });
   });
+
   describe('parseEnv', () => {
     describe('With proper JSON', () => {
       const envValue = [{
@@ -173,6 +176,39 @@ describe('Create Redirects Utils', () => {
       it('should throw an error', () => {
         expect(() => parseEnv(process.env.SITE_REDIRECTS)).to.throw();
       });
+    });
+  });
+  describe('run', () => {
+    const testFile = './test.conf';
+
+    beforeEach(async () => await rm(testFile, { force: true }));
+    afterEach(async () => await rm(testFile,  { force: true }));
+
+    it('should create a redirects conf file', async () => {
+      const subdomain = 'baz';
+      const target = 'foo.bar';
+      const redirects = JSON.stringify([{ subdomain, target }]);
+      await run(redirects, testFile);
+      const result = await readFile(testFile, { encoding: 'utf-8' });
+
+      expect(result).to.include(`$name = "${subdomain}"`);
+      expect(result).to.include(`return 301 "https://${target}$request_uri"`);
+    });
+
+    it('should create an empty conf file from an empty array of redirects', async () => {
+      const redirects = JSON.stringify([]);
+      await run(redirects, testFile);
+      const result = await readFile(testFile, { encoding: 'utf-8' });
+
+      expect(result).to.eq('');
+    });
+
+    it('should create an empty conf file from undefined redirects', async () => {
+      let redirects;
+      await run(redirects, testFile);
+      const result = await readFile(testFile, { encoding: 'utf-8' });
+
+      expect(result).to.eq('');
     });
   });
 });

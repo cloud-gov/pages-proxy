@@ -53,6 +53,9 @@ function run(siteRedirects, redirectFile) {
       if (!siteRedirects) return writeRedirect(redirectFile, '');
 
       const redirects = parseEnv(siteRedirects);
+
+      if (redirects.length === 0) return writeRedirect(redirectFile, '');
+
       const templated = redirects.map(redirect => {
         const template = createRedirect(redirect);
         return writeRedirect(redirectFile, template);
