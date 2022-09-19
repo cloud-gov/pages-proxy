@@ -1,6 +1,6 @@
 #! /usr/bin/node
 
-const { writeFile } = require('fs/promises');
+const { rm, writeFile } = require('fs/promises');
 
 function parseEnv(redirects) {
   const list = JSON.parse(redirects);
@@ -47,9 +47,25 @@ function writeRedirect(file, statement) {
   return writeFile(file, statement, { flag: 'a' });
 }
 
+function run(siteRedirects, redirectFile) {
+  return rm(redirectFile, { force: true })
+    .then(() => {
+      if (!siteRedirects) return writeRedirect(redirectFile, '');
+
+      const redirects = parseEnv(siteRedirects);
+      const templated = redirects.map(redirect => {
+        const template = createRedirect(redirect);
+        return writeRedirect(redirectFile, template);
+      });
+
+      return Promise.all(templated);
+    })
+}
+
 module.exports = {
   cleanPath,
   createRedirect,
   parseEnv,
-  writeRedirect
+  writeRedirect,
+  run,
 };

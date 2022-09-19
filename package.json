@@ -13,8 +13,10 @@
     "node": "16.x.x"
   },
   "scripts": {
-    "parse": "node ./bin/parse-conf.js",
+    "build-redirects": "node ./bin/build-redirects.js",
+    "parse": "node ./bin/parse-conf.js && npm run parse:test-redirects",
     "parse:integration": "INTEGRATION=true node ./bin/parse-conf.js",
+    "parse:test-redirects": "node ./bin/create-test-redirects",
     "test": "mocha test/**/*.js",
     "test:integration": "mocha --require test/integrationTestsHooks.js test/**/*.js",
     "test:integration:website-config": "WEBSITE_CONFIG=true mocha --require test/integrationTestsHooks.js test/**/*.js"

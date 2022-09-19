@@ -26,8 +26,8 @@ services:
     image: openresty/openresty:1.19.9.1-4-buster
     volumes:
       - ./tmp/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./tmp/redirects.conf:/usr/local/openresty/nginx/conf/redirects.conf:ro
       - ./mime.types:/etc/nginx/mime.types:ro
-      - ./redirects.conf:/usr/local/openresty/nginx/conf/redirects.conf:ro
     restart: always
     depends_on:
       - mock-dedicated

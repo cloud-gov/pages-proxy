@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const supertest = require('supertest');
-const { createMakeRequest } = require('./helpers');
+const { redirects } = require('./fixtures');
 const {
   cleanPath,
   createRedirect,
@@ -12,12 +12,49 @@ const {
 } = process.env;
 
 const request = supertest(PROXY_URL)
-const makeRequest = createMakeRequest(request)
+const [ redirect1, redirect2 ] = redirects
 
-describe.skip('Redirects', () => {
-  it('should redirect to a new url', () => {
-    const host = 'yolo.app.cloud.gov';
-    return makeRequest('', host, [[301]])
+describe('Redirects', () => {
+  it('should redirect to a new location url', async () => {
+    const host = `${redirect1.subdomain}.app.cloud.gov`;
+    const response = await request
+      .get('')
+      .set('Host', host);
+
+    expect(response.statusCode).to.eq(301);
+    expect(response.headers.location).to.eq(`https://${redirect1.target}/`);
+  });
+
+  it('should redirect to a new location url and preserve the request uri', async () => {
+    const host = `${redirect1.subdomain}.app.cloud.gov`;
+    const reqUri = '/foo/bar';
+    const response = await request
+      .get(reqUri)
+      .set('Host', host);
+
+    expect(response.statusCode).to.eq(301);
+    expect(response.headers.location).to.eq(`https://${redirect1.target}${reqUri}`);
+  });
+
+  it('should redirect to a new location url with a path', async() => {
+    const host = `${redirect2.subdomain}.app.cloud.gov`;
+    const response = await request
+      .get('')
+      .set('Host', host);
+
+    expect(response.statusCode).to.eq(301);
+    expect(response.headers.location).to.eq(`https://${redirect2.target}/${redirect2.path}/`);
+  });
+
+  it('should redirect to a new location url with a path and preserve the request uri', async() => {
+    const host = `${redirect2.subdomain}.app.cloud.gov`;
+    const reqUri = '/foo/bar';
+    const response = await request
+      .get(reqUri)
+      .set('Host', host);
+
+    expect(response.statusCode).to.eq(301);
+    expect(response.headers.location).to.eq(`https://${redirect2.target}/${redirect2.path}${reqUri}`);
   });
 });
 

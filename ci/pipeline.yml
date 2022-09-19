@@ -96,6 +96,20 @@ test: &test
               docker-compose -f docker-compose.yml run app npm run test:integration:website-config
               docker-compose -f docker-compose.yml down
 
+build-redirects: &build-redirects
+  - task: build-redirects
+    config:
+      platform: linux
+      image_resource:
+        <<: *node-image
+      inputs: [name: src]
+      outputs: [name: src]
+      params:
+        SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
+      run:
+        dir: src
+        path: bash
+        args: [-c, npm run build-redirects]
 
 ############################
 #  JOBS
@@ -159,6 +173,7 @@ jobs:
         inputs: [src]
         params: {state: pending}
       - do: *test
+      - do: *build-redirects
       - task: deploy
         config:
           <<: *cf-image
