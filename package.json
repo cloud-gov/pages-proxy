@@ -14,9 +14,8 @@
   },
   "scripts": {
     "build-redirects": "node ./bin/build-redirects.js",
-    "parse": "node ./bin/parse-conf.js && npm run parse:test-redirects",
-    "parse:integration": "INTEGRATION=true node ./bin/parse-conf.js",
-    "parse:test-redirects": "node ./bin/create-test-redirects",
+    "parse": "node ./bin/parse-conf.js && node ./bin/create-test-redirects",
+    "parse:integration": "INTEGRATION=true npm run parse",
     "test": "mocha test/**/*.js",
     "test:integration": "mocha --require test/integrationTestsHooks.js test/**/*.js",
     "test:integration:website-config": "WEBSITE_CONFIG=true mocha --require test/integrationTestsHooks.js test/**/*.js"
