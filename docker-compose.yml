@@ -1,7 +1,7 @@
 version: '3'
 services:
   mock-dedicated:
-    image: node:14
+    image: node:16
     volumes:
       - .:/app
     working_dir: /app
@@ -12,7 +12,7 @@ services:
       PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
       DEFAULT_PATH_PREFIX: 'site/owner/repo'
   mock-shared:
-    image: node:14
+    image: node:16
     volumes:
       - .:/app
     working_dir: /app
@@ -26,13 +26,14 @@ services:
     image: openresty/openresty:1.19.9.1-4-buster
     volumes:
       - ./tmp/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./tmp/redirects.conf:/usr/local/openresty/nginx/conf/redirects.conf:ro
       - ./mime.types:/etc/nginx/mime.types:ro
     restart: always
     depends_on:
       - mock-dedicated
       - mock-shared
   app:
-    image: node:14
+    image: node:16
     volumes:
       - .:/app
     working_dir: /app

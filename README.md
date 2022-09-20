@@ -31,6 +31,16 @@ the expanded header `Strict-Transport-Security: max-age=31536000; includeSubDoma
 If these site domains change for any reason, the {{ INCLUDE_SUBDOMAINS }}
 variable will need to be updated in the `manifest.yml`.
 
+## Short-term Site Redirects
+
+To support short-term site redirects, the proxy uses an included redirects config which is built during deployment via a credhub json credential named `proxy-<env>-site-redirects` and set as an environment variable as `SITE_REDIRECTS`. The site redirects value is an array of objects with the following structure:
+
+|Key|Required?|Description|
+--- | --- | --- |
+|`subdomain`|:white_check_mark|The site's Pages subdomain|
+|`target|:white_check_mark|The target domain for the redirect|
+|`path`|:x|An optional path appended to the redirect target|
+
 ## Local setup
 ### Install Depedencies
 ```
@@ -80,6 +90,8 @@ Some credentials in this pipeline are "compound" credentials that use the pipeli
 |**`((git-base-url))`**|The base url to the git server's HTTP endpoint|:x:|
 |**`((proxy-repository-path))`**|The url path to the repository|:x:|
 |**`((gh-access-token))`**| The Github access token|:x:|
+|**`((pages-proxy-((deploy-env))-site-redirects))`**|JSON array of redirect objects|:white_check_mark:|
+|**`((federalist-proxy-((deploy-env))-site-redirects))`**|JSON array of redirect objects|:white_check_mark:|
 
 ### Setting up the pipeline
 The pipeline and each of it's instances will only need to be set once per instance to create the initial pipeline. After the pipelines are set, updates to the respective `git-branch` source will automatically set the pipeline with any updates. See the [`set_pipeline` step](https://concourse-ci.org/set-pipeline-step.html) for more information. Run the following command with the fly CLI to set a pipeline instance:

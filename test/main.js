@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const supertest = require('supertest');
+const { createMakeRequest, createMakeCloudfrontRequest } = require('./helpers');
 
 const { parseConf } = require('../bin/parse-conf');
 
@@ -11,7 +12,7 @@ const {
   INCLUDE_SUBDOMAINS,
 } = process.env;
 
-supertest.Test.prototype.expectStandardHeaders = function() {
+supertest.Test.prototype.expectStandardHeaders = function () {
   this.expect('X-Frame-Options', 'SAMEORIGIN');
   this.expect('X-Server', 'Cloud.gov Pages');
   this.expect('X-Robots-Tag', 'none');
@@ -20,7 +21,7 @@ supertest.Test.prototype.expectStandardHeaders = function() {
   return this;
 }
 
-supertest.Test.prototype.expectCloudfrontHeaders = function() {
+supertest.Test.prototype.expectCloudfrontHeaders = function () {
   this.expect('X-Frame-Options', 'SAMEORIGIN');
   this.expect('X-Server', 'Cloud.gov Pages');
   this.expect('X-Robots-Tag', 'all');
@@ -30,26 +31,8 @@ supertest.Test.prototype.expectCloudfrontHeaders = function() {
 };
 
 const request = supertest(PROXY_URL);
-
-function makeRequest(path, host, expectations = []) {
-  const initial = request
-    .get(path)
-    .set('Host', host)
-    .expectStandardHeaders();
-  
-  return expectations.reduce((r, expectation) => r.expect(...expectation), initial);
-}
-
-function makeCloudfrontRequest(path, host, expectations = []) {
-  const initial = request
-    .get(path)
-    .set('Host', host)
-    .set('User-Agent', 'Amazon Cloudfront')
-    .expectCloudfrontHeaders();
-
-  return expectations.reduce((r, expectation) => r.expect(...expectation), initial);
-}
-
+const makeRequest = createMakeRequest(request);
+const makeCloudfrontRequest = createMakeCloudfrontRequest(request);
 const previewPrefixPath = (path) => `/${PREVIEW_PATH_PREFIX}${path}`;
 const defaultPrefixPath = (path) => `/${DEFAULT_PATH_PREFIX}${path}`;
 previewPrefixPath.toString = () => 'preview path';
@@ -70,12 +53,9 @@ describe('parse-conf', () => {
     const funcs = {};
 
     const result = parseConf(template, funcs);
+    const trimmed = result.replace(/\s/g, "")
 
-    expect(result).to.equal(`
-      foo;
-      
-      bar;
-    `);
+    expect(trimmed).to.equal('foo;bar;');
   });
 
   it('replaces interpolated functions with no arguments', () => {
@@ -155,7 +135,7 @@ describe('For non-`pages-proxy-staging` hosts', () => {
       it('returns results from the DEDICATED bucket', () => {
         return makeRequest(prefixPathFn('/bucket.html'), host, [[200], [/dedicated/i]]);
       });
-    
+
       describe('Paths', pathSpecs(host, prefixPathFn));
     });
   }
@@ -163,7 +143,7 @@ describe('For non-`pages-proxy-staging` hosts', () => {
 
 describe('For `includeSubdomains` specific hosts', () => {
   const subs = INCLUDE_SUBDOMAINS.split('|');
-  for(const sub of subs) {
+  for (const sub of subs) {
     const host = `${sub}.app.cloud.gov`;
 
     for (const prefixPathFn of prefixPathFns) {
@@ -180,7 +160,7 @@ describe('For `includeSubdomains` specific hosts', () => {
               ['Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains']
             ]);
           });
-            
+
           describe('Paths', pathSpecs(host, prefixPathFn));
         });
       });
@@ -247,7 +227,7 @@ function pathSpecs(host, prefixPathFn) {
         });
       })
 
-      if(prefixPathFn.toString() === 'preview path') {
+      if (prefixPathFn.toString() === 'preview path') {
         it('redirects to /<some-path>/ with the prefix', () => {
           const path = prefixPathFn('/unicorn');
           const location = prefixPathFn('/unicorn/');
