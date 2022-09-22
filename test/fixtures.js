@@ -54,18 +54,21 @@ function getFixtures(bucketType) {
   };
 };
 
-function createRedirect(subdomain, target, path) {
+function createRedirect(subdomain, target, { path, usePreviewPath = false} = {}) {
   return {
     subdomain,
     target,
     ...(path && { path }),
+    ...(usePreviewPath && { usePreviewPath })
   };
 }
 
 const redirects = [
   createRedirect('subdomain1', 'target.one'),
-  createRedirect('subdomain2', 'target.two', 'targettwopath'),
-  createRedirect('subdomain3', 'target.three', 'target/three/path'),
+  createRedirect('subdomain2', 'target.two', { path: 'targettwopath' }),
+  createRedirect('subdomain3', 'target.three', {
+    usePreviewPath: true,
+  }),
 ];
 
 module.exports = {

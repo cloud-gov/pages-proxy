@@ -35,11 +35,12 @@ variable will need to be updated in the `manifest.yml`.
 
 To support short-term site redirects, the proxy uses an included redirects config which is built during deployment via a credhub json credential named `proxy-<env>-site-redirects` and set as an environment variable as `SITE_REDIRECTS`. The site redirects value is an array of objects with the following structure:
 
-|Key|Required?|Description|
---- | --- | --- |
-|`subdomain`|:white_check_mark|The site's Pages subdomain|
-|`target|:white_check_mark|The target domain for the redirect|
-|`path`|:x|An optional path appended to the redirect target|
+|Key|Required?|Default|Description|
+--- | --- | --- | --- |
+|`subdomain`|:white_check_mark:|__N/A__|The site's Pages subdomain|
+|`target`|:white_check_mark:|__N/A__|The target domain for the redirect|
+|`path`|:x:|`''`|An optional path appended to the redirect target|
+|`usePreviewPath`|:x:|`false`|An optional boolean to append the site's preview path to redirect target|
 
 ## Local setup
 ### Install Depedencies

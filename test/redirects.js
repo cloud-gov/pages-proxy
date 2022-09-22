@@ -14,7 +14,7 @@ const {
 } = process.env;
 
 const request = supertest(PROXY_URL)
-const [ redirect1, redirect2 ] = redirects
+const [ redirect1, redirect2, redirect3 ] = redirects
 
 describe('Redirects', () => {
   it('should redirect to a new location url', async () => {
@@ -24,18 +24,19 @@ describe('Redirects', () => {
       .set('Host', host);
 
     expect(response.statusCode).to.eq(301);
-    expect(response.headers.location).to.eq(`https://${redirect1.target}/`);
+    expect(response.headers.location).to.eq(`https://${redirect1.target}`);
   });
 
   it('should redirect to a new location url and preserve the request uri', async () => {
     const host = `${redirect1.subdomain}.app.cloud.gov`;
-    const reqUri = '/foo/bar';
+    const previewPath = '/site/org/repo';
+    const reqPath = '/foo/bar';
     const response = await request
-      .get(reqUri)
+      .get(`${previewPath}${reqPath}`)
       .set('Host', host);
 
     expect(response.statusCode).to.eq(301);
-    expect(response.headers.location).to.eq(`https://${redirect1.target}${reqUri}`);
+    expect(response.headers.location).to.eq(`https://${redirect1.target}${reqPath}`);
   });
 
   it('should redirect to a new location url with a path', async() => {
@@ -45,18 +46,32 @@ describe('Redirects', () => {
       .set('Host', host);
 
     expect(response.statusCode).to.eq(301);
-    expect(response.headers.location).to.eq(`https://${redirect2.target}/${redirect2.path}/`);
+    expect(response.headers.location).to.eq(`https://${redirect2.target}/${redirect2.path}`);
   });
 
   it('should redirect to a new location url with a path and preserve the request uri', async() => {
     const host = `${redirect2.subdomain}.app.cloud.gov`;
-    const reqUri = '/foo/bar';
+    const previewPath = '/site/org/repo';
+    const reqPath = '/foo/bar';
     const response = await request
-      .get(reqUri)
+      .get(`${previewPath}${reqPath}`)
       .set('Host', host);
 
     expect(response.statusCode).to.eq(301);
-    expect(response.headers.location).to.eq(`https://${redirect2.target}/${redirect2.path}${reqUri}`);
+    expect(response.headers.location).to.eq(`https://${redirect2.target}/${redirect2.path}${reqPath}`);
+  });
+
+  it('should redirect to a new location url with the site preview path when usePreviewPath is true', async() => {
+    const host = `${redirect3.subdomain}.app.cloud.gov`;
+    const previewPath = '/site/org/repo';
+    const reqPath = '/foo/bar';
+    const fullPath = `${previewPath}${reqPath}`
+    const response = await request
+      .get(fullPath)
+      .set('Host', host);
+
+    expect(response.statusCode).to.eq(301);
+    expect(response.headers.location).to.eq(`https://${redirect3.target}${fullPath}`);
   });
 });
 
@@ -91,7 +106,7 @@ describe('Create Redirects Utils', () => {
 
       const result = createRedirect(redirect);
       expect(result).to.include(`$name = "${subdomain}"`);
-      expect(result).to.include(`return 301 "https://${target}/${path}$request_uri"`);
+      expect(result).to.include(`return 301 "https://${target}/${path}$remaining_path"`);
     });
 
     it('should return a ngnix redirect string with subdomain and target', () => {
@@ -105,7 +120,7 @@ describe('Create Redirects Utils', () => {
 
       const result = createRedirect(redirect);
       expect(result).to.include(`$name = "${subdomain}"`);
-      expect(result).to.include(`return 301 "https://${target}$request_uri"`);
+      expect(result).to.include(`return 301 "https://${target}$remaining_path"`);
     });
 
     it('should throw an error without subdomain', () => {
@@ -188,6 +203,18 @@ describe('Create Redirects Utils', () => {
       const subdomain = 'baz';
       const target = 'foo.bar';
       const redirects = JSON.stringify([{ subdomain, target }]);
+      await run(redirects, testFile);
+      const result = await readFile(testFile, { encoding: 'utf-8' });
+
+      expect(result).to.include(`$name = "${subdomain}"`);
+      expect(result).to.include(`return 301 "https://${target}$remaining_path"`);
+    });
+
+    it('should create a redirects conf file with $request_uri with usePreviewPath', async () => {
+      const subdomain = 'baz';
+      const target = 'foo.bar';
+      const usePreviewPath = true;
+      const redirects = JSON.stringify([{ subdomain, target, usePreviewPath }]);
       await run(redirects, testFile);
       const result = await readFile(testFile, { encoding: 'utf-8' });
 
