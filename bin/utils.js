@@ -30,15 +30,16 @@ function cleanPath(path) {
 }
 
 function createRedirect(redirect) {
-  const { subdomain, path, target } = redirect;
+  const { subdomain, path, target, usePreviewPath } = redirect;
 
   if (!subdomain) throw 'Subdomain must be defined for redirect.'
   if (!target) throw 'Target must be defined for redirect.'
 
+  const requestPath = usePreviewPath ? '$request_uri' : '$remaining_path';
   const toPath = cleanPath(path);
 
   return `if ($name = "${subdomain}") {
-  return 301 "https://${target}${toPath}$request_uri";
+  return 301 "https://${target}${toPath}${requestPath}";
 }\n
 `;
 }
