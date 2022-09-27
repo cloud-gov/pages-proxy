@@ -96,7 +96,6 @@ test: &test
               docker-compose -f docker-compose.yml run app npm run test:integration:website-config
               docker-compose -f docker-compose.yml down
 
-
 ############################
 #  JOBS
 
@@ -156,6 +155,17 @@ jobs:
         inputs: [src]
         params: {state: pending}
       - do: *test
+      - task: build-redirects
+        config:
+          <<: *node-image
+          inputs: [name: src]
+          outputs: [name: src]
+          params:
+            SITE_REDIRECTS: ((federalist-proxy-production-site-redirects))
+          run:
+            dir: src
+            path: bash
+            args: [-c, npm run build-redirects]
       - task: deploy
         config:
           <<: *cf-image
@@ -265,7 +275,7 @@ resources:
     type: docker-image
     source:
       repository: node
-      tag: 12
+      tag: 16
 
   - name: slack
     type: slack-notification

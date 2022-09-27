@@ -54,7 +54,25 @@ function getFixtures(bucketType) {
   };
 };
 
+function createRedirect(subdomain, target, { path, usePreviewPath = false} = {}) {
+  return {
+    subdomain,
+    target,
+    ...(path && { path }),
+    ...(usePreviewPath && { usePreviewPath })
+  };
+}
+
+const redirects = [
+  createRedirect('subdomain1', 'target.one'),
+  createRedirect('subdomain2', 'target.two', { path: 'targettwopath' }),
+  createRedirect('subdomain3', 'target.three', {
+    usePreviewPath: true,
+  }),
+];
+
 module.exports = {
   dedicated: getFixtures('dedicated'),
-  shared: getFixtures('shared')
+  shared: getFixtures('shared'),
+  redirects,
 }

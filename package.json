@@ -10,11 +10,12 @@
   "author": "Amir Reavis-Bey",
   "private": true,
   "engines": {
-    "node": "14.x.x"
+    "node": "16.x.x"
   },
   "scripts": {
-    "parse": "node ./bin/parse-conf.js",
-    "parse:integration": "INTEGRATION=true node ./bin/parse-conf.js",
+    "build-redirects": "node ./bin/build-redirects.js",
+    "parse": "node ./bin/parse-conf.js && node ./bin/create-test-redirects",
+    "parse:integration": "INTEGRATION=true npm run parse",
     "test": "mocha test/**/*.js",
     "test:integration": "mocha --require test/integrationTestsHooks.js test/**/*.js",
     "test:integration:website-config": "WEBSITE_CONFIG=true mocha --require test/integrationTestsHooks.js test/**/*.js"
