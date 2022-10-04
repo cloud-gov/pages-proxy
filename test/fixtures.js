@@ -73,5 +73,5 @@ const redirects = [
 
 module.exports = {
   dedicated: getFixtures('dedicated'),
-  redirects,
+  redirects
 }
