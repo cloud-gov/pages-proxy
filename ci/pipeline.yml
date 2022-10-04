@@ -25,11 +25,10 @@ cf-image: &cf-image
       repository: 18fgsa/concourse-task
 
 test: &test
-  - in_parallel:
-    - get: nginx
-      params: {save: true}
-    - get: node
-      params: {save: true}
+  - get: nginx
+    params: {save: true}∂
+  - get: node
+    params: {save: true}
   - in_parallel:
     - task: test-mock
       privileged: true
