@@ -5,9 +5,6 @@ const {
   DEDICATED_AWS_ACCESS_KEY_ID,
   DEDICATED_AWS_SECRET_ACCESS_KEY,
   DEDICATED_S3_BUCKET,
-  SHARED_AWS_ACCESS_KEY_ID,
-  SHARED_AWS_SECRET_ACCESS_KEY,
-  SHARED_S3_BUCKET,
   WEBSITE_CONFIG
 } = process.env;
 
@@ -20,15 +17,6 @@ const buckets = {
       apiVersion: '2006-03-01',
     },
     fixtures: Fixtures.dedicated,
-  },
-  shared: {
-    bucket: SHARED_S3_BUCKET,
-    creds: {
-      accessKeyId: SHARED_AWS_ACCESS_KEY_ID,
-      secretAccessKey: SHARED_AWS_SECRET_ACCESS_KEY,
-      apiVersion: '2006-03-01',
-    },
-    fixtures: Fixtures.shared,
   }
 };
 

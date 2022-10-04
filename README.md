@@ -82,8 +82,6 @@ Some credentials in this pipeline are "compound" credentials that use the pipeli
 |**`((((deploy-env))-cf-username))`**|The deployment environments CloudFoundry deployer password based on the instanced pipeline|:white_check_mark:|
 |**`((dedicated-aws-access-key-id))`**|AWS access key for testing|:x:|
 |**`((dedicated-aws-secret-access-key))`**| AWS secret key for testing|:x:|
-|**`((shared-aws-access-key-id))`**| AWS access key for testing|:x:|
-|**`((shared-aws-secret-access-key))`**| AWS secret key for testing|:x:|
 |**`((slack-channel))`**| Slack channel | :x:|
 |**`((slack-username))`**| Slack username | :x:|
 |**`((slack-icon-url))`**| Slack icon url | :x:|
@@ -127,6 +125,5 @@ In order for changes to the `nginx.conf` file or mock server to be reflected whe
 ### Integration tests
 Integration tests use the following S3 buckets provisioned in the `sandbox` space in the `gsa-18f-federalist` cloud.gov organization:
 - `proxy-integration-test-dedicated`
-- `proxy-integration-test-shared`
 
-Before running the tests, make a copy of the `.env.sample` file named `.env` and populate with the credentials from corresponding service keys `proxy-integration-test-dedicated-key` and `proxy-integration-test-shared-key` in the `sandbox` space. Ex. `cf t -s sandbox && cf service-key proxy-integration-test-dedicated proxy-integration-test-dedicated-key`.
+Before running the tests, make a copy of the `.env.sample` file named `.env` and populate with the credentials from corresponding service keys `proxy-integration-test-dedicated-key` in the `sandbox` space. Ex. `cf t -s sandbox && cf service-key proxy-integration-test-dedicated proxy-integration-test-dedicated-key`.

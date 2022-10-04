@@ -65,8 +65,6 @@ test: &test
       params:
         DEDICATED_AWS_ACCESS_KEY_ID: ((dedicated-aws-access-key-id))
         DEDICATED_AWS_SECRET_ACCESS_KEY: ((dedicated-aws-secret-access-key))
-        SHARED_AWS_ACCESS_KEY_ID: ((shared-aws-access-key-id))
-        SHARED_AWS_SECRET_ACCESS_KEY: ((shared-aws-secret-access-key))
       config:
         platform: linux
         image_resource:
