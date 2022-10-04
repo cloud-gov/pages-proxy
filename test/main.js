@@ -113,20 +113,6 @@ describe('Health check', () => {
   });
 });
 
-describe('For `pages-proxy-staging` hosts', () => {
-  const host = 'pages-proxy-staging.app.cloud.gov';
-
-  for (const prefixPathFn of prefixPathFns) {
-    describe(`with the ${prefixPathFn}`, () => {
-      it('returns results from the SHARED bucket', () => {
-        return makeRequest(prefixPathFn('/bucket.html'), host, [[200], [/shared/i]]);
-      });
-
-      describe('Paths', pathSpecs(host, prefixPathFn));
-    });
-  }
-});
-
 describe('For non-`pages-proxy-staging` hosts', () => {
   const host = 'foobar.app.cloud.gov';
 

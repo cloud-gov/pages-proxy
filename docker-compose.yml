@@ -11,17 +11,6 @@ services:
       BUCKET_TYPE: dedicated
       PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
       DEFAULT_PATH_PREFIX: 'site/owner/repo'
-  mock-shared:
-    image: node:16
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: ["node", "./bin/mock.js"]
-    environment:
-      PORT: 8001
-      BUCKET_TYPE: shared
-      PREVIEW_PATH_PREFIX: 'preview/owner/repo/branch/name'
-      DEFAULT_PATH_PREFIX: 'site/owner/repo'
   nginx:
     image: openresty/openresty:1.19.9.1-4-buster
     volumes:
@@ -31,7 +20,6 @@ services:
     restart: always
     depends_on:
       - mock-dedicated
-      - mock-shared
   app:
     image: node:16
     volumes:
@@ -42,7 +30,6 @@ services:
       INCLUDE_SUBDOMAINS: 'foobaz|specific'
       PAGES_PROXY_SERVER_NAME: 'pages-proxy-staging'
       MOCK_DEDICATED_S3_BUCKET_URL: 'http://mock-dedicated:8001'
-      MOCK_FEDERALIST_S3_BUCKET_URL: 'http://mock-shared:8001'
       PROXY_WWW: '/usr/share/nginx/html'
       PROXY_PORT: 8000
       DNS_RESOLVER: '127.0.0.11'
@@ -54,9 +41,6 @@ services:
       DEDICATED_AWS_ACCESS_KEY_ID: ${DEDICATED_AWS_ACCESS_KEY_ID}
       DEDICATED_AWS_SECRET_ACCESS_KEY: ${DEDICATED_AWS_SECRET_ACCESS_KEY}
       DEDICATED_S3_BUCKET: cg-31e28f05-33dd-4c8d-ba13-19b1aa956257
-      SHARED_AWS_ACCESS_KEY_ID: ${SHARED_AWS_ACCESS_KEY_ID}
-      SHARED_AWS_SECRET_ACCESS_KEY: ${SHARED_AWS_SECRET_ACCESS_KEY}
-      SHARED_S3_BUCKET: cg-69dc2242-d953-47ca-9a72-b0236b631de8
       AWS_REGION: us-gov-west-1
       DOMAIN: app\.cloud\.gov
     depends_on:
