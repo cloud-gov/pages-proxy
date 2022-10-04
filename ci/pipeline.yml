@@ -26,7 +26,7 @@ cf-image: &cf-image
 
 test: &test
   - get: nginx
-    params: {save: true}∂
+    params: {save: true}
   - get: node
     params: {save: true}
   - in_parallel:
