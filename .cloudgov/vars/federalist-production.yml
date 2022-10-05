@@ -1,5 +1,4 @@
 name: federalist-proxy
 memory: 256MB
 instances: 4
-shared-bucket: cg-06ab120d-836f-49a2-bc22-9dfb1585c3c6
 domain: app\.cloud\.gov
