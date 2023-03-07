@@ -247,8 +247,16 @@ function pathSpecs(host, prefixPathFn) {
         });
 
         describe('for potential open redirects', () => {
-          it('returns a 404', () => {
+          it('returns a 404 when using backslashes', () => {
             const path = prefixPathFn(encodeURI('/\\\\example.com/%2e%2e%2f')); // /%5C%5Cexample.com/%252e%252e%252f
+
+            return makeCloudfrontRequest(path, host, [
+              [404],
+            ]);
+          });
+
+          it('returns a 404 when using encoded backslashes', () => {
+            const path = prefixPathFn('/%255C%255Cexample.com/%2e%2e%2f'); // /%5C%5Cexample.com/%252e%252e%252f
 
             return makeCloudfrontRequest(path, host, [
               [404],
