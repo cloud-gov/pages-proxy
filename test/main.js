@@ -113,6 +113,58 @@ describe('Health check', () => {
   });
 });
 
+describe('Unallowed HTTP Methods', () => {
+  const host = 'foobar.app.cloud.gov';
+
+  it('with the DELETE method', () => {
+    return request
+      .delete(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the OPTIONS method', () => {
+    return request
+      .options(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the PATCH method', () => {
+    return request
+      .patch(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the POST method', () => {
+    return request
+      .post(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the PUT method', () => {
+    return request
+      .put(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the TRACE method', () => {
+    return request
+      .trace(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+});
+
 describe('For non-`pages-proxy-staging` hosts', () => {
   const host = 'foobar.app.cloud.gov';
 
@@ -255,13 +307,27 @@ function pathSpecs(host, prefixPathFn) {
             ]);
           });
 
-          it('returns a 404 when using encoded backslashes', () => {
-            const path = prefixPathFn('/%255C%255Cexample.com/%2e%2e%2f'); // /%5C%5Cexample.com/%252e%252e%252f
+          it('returns a 404 when using single encoded backslashes', () => {
+            const path = prefixPathFn('/%5C%5Cexample.com/%2e%2e%2f'); 
 
             return makeCloudfrontRequest(path, host, [
               [404],
             ]);
           });
+
+          it('returns a 404 when using double encoded backslashes', () => {
+            const path = prefixPathFn('/%255C%255Cexample.com/%2e%2e%2f');
+            return makeCloudfrontRequest(path, host, [
+              [404],
+            ]);
+          });
+          // TODO: add back confirming test
+          // it('returns a 301 when using characters from encoded backslashes', () => {
+          //   const path = prefixPathFn('/foo/bar/2023-data');
+          //   return makeCloudfrontRequest(path, host, [
+          //     [301],
+          //   ]);
+          // });
         });
       }
     });
