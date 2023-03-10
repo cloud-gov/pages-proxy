@@ -307,13 +307,27 @@ function pathSpecs(host, prefixPathFn) {
             ]);
           });
 
-          it('returns a 404 when using encoded backslashes', () => {
-            const path = prefixPathFn('/%255C%255Cexample.com/%2e%2e%2f'); // /%5C%5Cexample.com/%252e%252e%252f
+          it('returns a 404 when using single encoded backslashes', () => {
+            const path = prefixPathFn('/%5C%5Cexample.com/%2e%2e%2f'); 
 
             return makeCloudfrontRequest(path, host, [
               [404],
             ]);
           });
+
+          it('returns a 404 when using double encoded backslashes', () => {
+            const path = prefixPathFn('/%255C%255Cexample.com/%2e%2e%2f');
+            return makeCloudfrontRequest(path, host, [
+              [404],
+            ]);
+          });
+          // TODO: add back confirming test
+          // it('returns a 301 when using characters from encoded backslashes', () => {
+          //   const path = prefixPathFn('/foo/bar/2023-data');
+          //   return makeCloudfrontRequest(path, host, [
+          //     [301],
+          //   ]);
+          // });
         });
       }
     });
