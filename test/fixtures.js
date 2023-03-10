@@ -43,6 +43,14 @@ function getFixtures(bucketType) {
       content: 'path-with-period-target',
       extras: { ContentType: 'text/html' },
     }),
+    ...prefixPaths('foo/bar/2023-data', {
+      context: 'partial-backslash-characters',
+      extras: { WebsiteRedirectLocation: '/foo/path/bar/2023-data/index.html'},
+    }),
+    ...prefixPaths('foo/bar/2023-data/index.html', {
+      context: 'partial-backslash-characters',
+      extras: { ContentType: 'text/html' },
+    }),
     [previewPrefixPath('404.html')]: {
       content: '<h1>preview - 4044444444</h1>',
       extras: { ContentType: 'text/html' },
