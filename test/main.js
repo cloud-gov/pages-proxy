@@ -113,6 +113,58 @@ describe('Health check', () => {
   });
 });
 
+describe('Unallowed HTTP Methods', () => {
+  const host = 'foobar.app.cloud.gov';
+
+  it('with the DELETE method', () => {
+    return request
+      .delete(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the OPTIONS method', () => {
+    return request
+      .options(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the PATCH method', () => {
+    return request
+      .patch(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the POST method', () => {
+    return request
+      .post(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the PUT method', () => {
+    return request
+      .put(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+
+  it('with the TRACE method', () => {
+    return request
+      .trace(defaultPrefixPath('/bucket.html'))
+      .set('Host', host)
+      .expectStandardHeaders()
+      .expect(405);
+  });
+});
+
 describe('For non-`pages-proxy-staging` hosts', () => {
   const host = 'foobar.app.cloud.gov';
 
