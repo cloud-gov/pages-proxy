@@ -8,6 +8,7 @@ env-cf: &env-cf
   CF_PASSWORD: ((production-cf-password))
   CF_ORG: gsa-18f-federalist
   CF_SPACE: production
+  CF_STACK: cflinuxfs4
 
 node-image: &node-image
   platform: linux
