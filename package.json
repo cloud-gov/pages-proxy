@@ -21,7 +21,7 @@
     "test:integration:website-config": "WEBSITE_CONFIG=true mocha --require test/integrationTestsHooks.js test/**/*.js"
   },
   "dependencies": {
-    "aws-sdk": "^2.1045.0",
+    "aws-sdk": "^2.1354.0",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "mocha": "^9.1.3",
