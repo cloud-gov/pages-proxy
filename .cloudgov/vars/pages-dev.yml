@@ -1,0 +1,4 @@
+name: pages-proxy-dev
+memory: 96MB
+instances: 2
+domain: sites\.pages-dev\.cloud\.gov

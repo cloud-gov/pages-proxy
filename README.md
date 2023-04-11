@@ -63,13 +63,17 @@ To support short-term site redirects, the proxy uses an included redirects confi
 ## Continuous Integration
 The proxy uses Concourse CI to run tests and deploy to different environments in the cloud.gov Pages organization. The pipeline is defined in the [`ci/pipeline.yml`](./ci/pipeline.yml) file and supporting CI scripts are found in the [`ci`](./ci) directory. This pipeline is using Concourse's [`instanced pipeline`](https://concourse-ci.org/instanced-pipelines.html) feature to minimize boilerplate configuration when declaring tasks and resources for each deployment environment.
 
+__*&#8595; NOTICE &#8595;*__
+
+> __Proxy Dev__ deploys the proxy app when a PR is created into the `staging` branch. This uses a unique pipeline file: [./ci/pipeline-dev.yml](./ci/pipeline-dev.yml)
+
 ### Pipeline instance variables
 Two instances of the pipeline are set for the `staging` and `production` environments. Instance variables are used to fill in Concourse pipeline parameter variables bearing the same name as the instance variable. See more on [Concourse vars](https://concourse-ci.org/vars.html).  Each instance of the pipeline has two instance variables associated to it: `deploy-env` & `git-branch`.
 
-|Instance Variable|Staging Environment|Production Environment|
---- | --- | --- |
-|**`deploy-env`**|`staging`|`production`|
-|**`git-branch`**|`staging`|`main`|
+|Instance Variable|Dev Environment|Staging Environment|Production Environment|
+--- | --- | --- | --- |
+|**`deploy-env`**|`dev`|`staging`|`production`|
+|**`git-branch`**|`staging`|`staging`|`main`|
 
 ### Pipeline credentials
 Concourse CI integrates directly with [Credhub](https://docs.cloudfoundry.org/credhub/) to provide access to credentials/secrets at job runtime. When a job is started, Concourse will resolve the parameters within the pipeline with the latest credentials using the double parentheses notation (ie. `((<credential-name>))`). See more about the [credentials lookup rules](https://concourse-ci.org/credhub-credential-manager.html#credential-lookup-rules).

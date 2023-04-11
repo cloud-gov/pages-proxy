@@ -1,0 +1,272 @@
+---
+############################
+#  SHARED
+
+env-cf: &env-cf
+  CF_API: https://api.fr.cloud.gov
+  CF_USERNAME: ((((deploy-env))-cf-username))
+  CF_PASSWORD: ((((deploy-env))-cf-password))
+  CF_ORG: gsa-18f-federalist
+  CF_SPACE: ((deploy-env))
+  CF_STACK: cflinuxfs4
+
+node-image: &node-image
+  platform: linux
+  image_resource:
+    type: docker-image
+    source:
+      repository: node
+      tag: 18
+
+cf-image: &cf-image
+  platform: linux
+  image_resource:
+    type: registry-image
+    source:
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: harden-concourse-task
+      aws_region: us-gov-west-1
+      tag: ((harden-concourse-task-tag))
+
+test: &test
+  - in_parallel:
+      - get: nginx
+        params: { save: true }
+      - get: node
+        params: { save: true }
+  - in_parallel:
+      - task: test-mock
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: karlkfi/concourse-dcind
+          inputs:
+            - name: src
+            - name: nginx
+            - name: node
+          run:
+            dir: src
+            path: ci/docker/entrypoint.sh
+            args:
+              - bash
+              - -ceux
+              - |
+                pushd ..
+                  docker load -i nginx/image
+                  docker tag "$(cat nginx/image-id)" "$(cat nginx/repository):$(cat nginx/tag)"
+                  docker load -i node/image
+                  docker tag "$(cat node/image-id)" "$(cat node/repository):$(cat node/tag)"
+                popd
+                docker-compose -f docker-compose.yml run --no-deps app npm install
+                docker-compose -f docker-compose.yml run --no-deps app npm run parse
+                docker-compose -f docker-compose.yml run app npm test
+                docker-compose -f docker-compose.yml down
+      - task: test-integration
+        privileged: true
+        params:
+          DEDICATED_AWS_ACCESS_KEY_ID: ((dedicated-aws-access-key-id))
+          DEDICATED_AWS_SECRET_ACCESS_KEY: ((dedicated-aws-secret-access-key))
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: karlkfi/concourse-dcind
+          inputs:
+            - name: src
+            - name: nginx
+            - name: node
+          run:
+            dir: src
+            path: ci/docker/entrypoint.sh
+            args:
+              - bash
+              - -ceux
+              - |
+                pushd ..
+                  docker load -i nginx/image
+                  docker tag "$(cat nginx/image-id)" "$(cat nginx/repository):$(cat nginx/tag)"
+                  docker load -i node/image
+                  docker tag "$(cat node/image-id)" "$(cat node/repository):$(cat node/tag)"
+                popd
+                docker-compose -f docker-compose.yml run --no-deps app npm install
+                docker-compose -f docker-compose.yml run --no-deps app npm run parse:integration
+                docker-compose -f docker-compose.yml run app npm run test:integration
+                docker-compose -f docker-compose.yml run app npm run test:integration:website-config
+                docker-compose -f docker-compose.yml down
+
+############################
+#  JOBS
+
+jobs:
+  - name: set-pipeline
+    plan:
+      - get: src
+        resource: pr-((git-branch))
+        trigger: true
+      - set_pipeline: proxy
+        file: src/ci/pipeline-dev.yml
+        instance_vars:
+          deploy-env: ((deploy-env))
+          git-branch: ((git-branch))
+
+  - name: test-and-deploy-((deploy-env))
+    plan:
+      - get: src
+        resource: pr-((git-branch))
+        passed: [set-pipeline]
+        trigger: true
+      - put: gh-status
+        inputs: [src]
+        params: { state: pending }
+      - do: *test
+      - task: build-redirects
+        config:
+          <<: *node-image
+          inputs: [name: src]
+          outputs: [name: src]
+          params:
+            SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
+          run:
+            dir: src
+            path: bash
+            args: [-c, npm run build-redirects]
+      - task: deploy
+        config:
+          <<: *cf-image
+          inputs: [name: src]
+          run:
+            dir: src
+            path: ci/tasks/deploy.sh
+        params:
+          <<: *env-cf
+          CF_APP_NAME: pages-proxy-((deploy-env))
+          CF_MANIFEST: .cloudgov/manifest.yml
+          CF_VARS_FILE: .cloudgov/vars/pages-((deploy-env)).yml
+        on_failure:
+          try:
+            task: cancel-api-deployment
+            config:
+              <<: *cf-image
+              inputs: [name: src]
+              run:
+                dir: src
+                path: ci/tasks/cancel-deployment.sh
+            params:
+              <<: *env-cf
+              CF_APP_NAME: pages-proxy-((deploy-env))
+    on_failure:
+      in_parallel:
+        - put: gh-status
+          inputs: [src]
+          params: { state: failure }
+        - put: slack
+          params:
+            text: |
+              :x: FAILED: pages proxy deployment on ((deploy-env))
+              <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+            channel: ((slack-channel))
+            username: ((slack-username))
+            icon_url: ((slack-icon-url))
+    on_success:
+      in_parallel:
+        - put: gh-status
+          inputs: [src]
+          params: { state: success }
+        - put: slack
+          params:
+            text: |
+              :white_check_mark: SUCCESS: Successfully deployed pages proxy on ((deploy-env))
+              <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+            channel: ((slack-channel))
+            username: ((slack-username))
+            icon_url: ((slack-icon-url))
+
+  - name: nightly-tasks-((deploy-env))
+    plan:
+      - get: src
+        resource: pr-((git-branch))
+        passed: [set-pipeline]
+      - get: nightly
+        trigger: true
+      - task: restage
+        config:
+          <<: *cf-image
+          inputs: [name: src]
+          run:
+            dir: src
+            path: ci/tasks/restage.sh
+        params:
+          <<: *env-cf
+          CF_APP_NAME: pages-proxy-((deploy-env))
+
+############################
+#  RESOURCES
+
+resources:
+  - name: pr-((git-branch))
+    type: pull-request
+    check_every: 1m
+    source:
+      repository: ((proxy-repository-path))
+      access_token: ((gh-access-token))
+      base_branch: ((git-branch))
+      disable_forks: true
+      ignore_drafts: false
+
+  - name: nightly
+    type: time
+    source:
+      start: 12:00 AM
+      stop: 1:00 AM
+      location: America/New_York
+
+  - name: nginx
+    type: docker-image
+    source:
+      repository: nginx
+      tag: 1
+
+  - name: node
+    type: docker-image
+    source:
+      repository: node
+      tag: 18
+
+  - name: slack
+    type: slack-notification
+    source:
+      url: ((slack-webhook-url))
+
+  - name: gh-status
+    type: cogito
+    check_every: 1h
+    source:
+      owner: cloud-gov
+      repo: pages-proxy
+      access_token: ((gh-access-token))
+      context_prefix: concourse
+
+############################
+#  RESOURCE TYPES
+
+resource_types:
+  - name: cogito
+    type: docker-image
+    check_every: 24h
+    source:
+      repository: pix4d/cogito
+
+  - name: slack-notification
+    type: docker-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: teliaoss/github-pr-resource
