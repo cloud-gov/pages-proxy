@@ -250,6 +250,7 @@ resources:
     source:
       uri: ((git-base-url))/((proxy-repository-path))
       branch: main
+      commit_verification_keys: ((cloud-gov-pages-gpg-keys))
 
   - name: pr-main
     type: pull-request
@@ -278,7 +279,7 @@ resources:
     type: docker-image
     source:
       repository: node
-      tag: 16
+      tag: 18
 
   - name: slack
     type: slack-notification
