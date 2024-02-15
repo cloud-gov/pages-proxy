@@ -1,0 +1,28 @@
+platform: linux
+image_resource:
+  type: registry-image
+  source:
+    aws_access_key_id: ((ecr-aws-key))
+    aws_secret_access_key: ((ecr-aws-secret))
+    repository: pages-dind-v25
+    aws_region: us-gov-west-1
+    tag: latest
+inputs:
+  - name: src
+  - name: nginx
+run:
+  dir: src
+  path: ci/docker/entrypoint.sh
+  args:
+    - bash
+    - -ceux
+    - |
+      pushd ..
+        docker load -i nginx/image
+        docker tag "$(cat nginx/image-id)" "$(cat nginx/repository):$(cat nginx/tag)"
+      popd
+      docker-compose -f docker-compose.yml run --no-deps app npm install
+      docker-compose -f docker-compose.yml run --no-deps app npm run parse:integration
+      docker-compose -f docker-compose.yml run app npm run test:integration
+      docker-compose -f docker-compose.yml run app npm run test:integration:website-config
+      docker-compose -f docker-compose.yml down
