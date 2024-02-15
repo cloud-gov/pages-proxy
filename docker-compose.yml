@@ -1,7 +1,7 @@
 version: '3'
 services:
   mock-dedicated:
-    image: node:18
+    image: node:20
     volumes:
       - .:/app
     working_dir: /app

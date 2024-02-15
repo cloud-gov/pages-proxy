@@ -94,10 +94,9 @@ Some credentials in this pipeline are "compound" credentials that use the pipeli
 |**`((proxy-repository-path))`**|The url path to the repository|:x:|
 |**`((gh-access-token))`**| The Github access token|:x:|
 |**`((pages-proxy-((deploy-env))-site-redirects))`**|JSON array of redirect objects|:white_check_mark:|
-|**`((federalist-proxy-((deploy-env))-site-redirects))`**|JSON array of redirect objects|:white_check_mark:|
 
 ### Setting up the pipeline
-The pipeline and each of it's instances will only need to be set once per instance to create the initial pipeline. After the pipelines are set, updates to the respective `git-branch` source will automatically set the pipeline with any updates. See the [`set_pipeline` step](https://concourse-ci.org/set-pipeline-step.html) for more information. Run the following command with the fly CLI to set a pipeline instance:
+The pipeline and each of its instances will only need to be set once per instance to create the initial pipeline. After the pipelines are set, updates to the respective `git-branch` source will automatically set the pipeline with any updates. See the [`set_pipeline` step](https://concourse-ci.org/set-pipeline-step.html) for more information. Run the following command with the fly CLI to set a pipeline instance:
 
 ```bash
 $ fly -t <Concourse CI Target Name> set-pipeline -p proxy \
@@ -118,9 +117,6 @@ $ fly -t <Concourse CI Target Name> get-pipeline \
 $ fly -t <Concourse CI Target Name> destroy-pipeline \
   -p proxy/deploy-env:production,git-branch:main
 ```
-
-### Production pages-proxy pipeline transition
-We are currently migrating from Federalist to Pages. The migration includes maintaining the former "Federalist" components of the platform to smoothly transition our customers and their sites. The CI configuration for this deployment pipeline can be found in [`ci/federalist-pipeline.yml`](./ci/federalist-pipeline.yml). This pipeline will serve to manage the existing `federalist-proxy` during the transition until it can be decommissioned.
 
 ## Notes
 ### When making changes
