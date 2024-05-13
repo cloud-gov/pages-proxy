@@ -10,43 +10,6 @@ env-cf: &env-cf
   CF_SPACE: ((deploy-env))
   CF_STACK: cflinuxfs4
 
-node-image: &node-image
-  platform: linux
-  image_resource:
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr-aws-key))
-      aws_secret_access_key: ((ecr-aws-secret))
-      repository: pages-node-v20
-      aws_region: us-gov-west-1
-      tag: latest
-
-cf-image: &cf-image
-  platform: linux
-  image_resource:
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr-aws-key))
-      aws_secret_access_key: ((ecr-aws-secret))
-      repository: general-task
-      aws_region: us-gov-west-1
-      tag: latest
-
-test: &test
-  - in_parallel:
-      - get: nginx
-        params: { save: true }
-  - in_parallel:
-      - task: test-mock
-        privileged: true
-        file: src/ci/partials/test-mocks.yml
-      - task: test-integration
-        privileged: true
-        params:
-          DEDICATED_AWS_ACCESS_KEY_ID: ((dedicated-aws-access-key-id))
-          DEDICATED_AWS_SECRET_ACCESS_KEY: ((dedicated-aws-secret-access-key))
-        file: src/ci/partials/test-integrations.yml
-
 ############################
 #  JOBS
 
@@ -68,25 +31,28 @@ jobs:
         resource: pr-((git-branch))
         passed: [set-pipeline]
         trigger: true
-      - do: *test
+      - get: nginx
+        params: { save: true }
+      - get: node
+      - get: cf-image
+      - in_parallel:
+          - task: test-mock
+            privileged: true
+            file: src/ci/partials/test-mocks.yml
+          - task: test-integration
+            privileged: true
+            params:
+              DEDICATED_AWS_ACCESS_KEY_ID: ((dedicated-aws-access-key-id))
+              DEDICATED_AWS_SECRET_ACCESS_KEY: ((dedicated-aws-secret-access-key))
+            file: src/ci/partials/test-integrations.yml
       - task: build-redirects
-        config:
-          <<: *node-image
-          inputs: [name: src]
-          outputs: [name: src]
-          params:
-            SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
-          run:
-            dir: src
-            path: bash
-            args: [-c, npm run build-redirects]
+        image: node
+        file: src/ci/partials/build-redirects.yml
+        params:
+          SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
       - task: deploy
-        config:
-          <<: *cf-image
-          inputs: [name: src]
-          run:
-            dir: src
-            path: ci/tasks/deploy.sh
+        image: cf-image
+        file: src/ci/partials/deploy.yml
         params:
           <<: *env-cf
           CF_APP_NAME: pages-proxy-((deploy-env))
@@ -95,12 +61,8 @@ jobs:
         on_failure:
           try:
             task: cancel-api-deployment
-            config:
-              <<: *cf-image
-              inputs: [name: src]
-              run:
-                dir: src
-                path: ci/tasks/cancel-deployment.sh
+            image: cf-image
+            file: src/ci/partials/cancel-deployment.yml
             params:
               <<: *env-cf
               CF_APP_NAME: pages-proxy-((deploy-env))
@@ -130,15 +92,12 @@ jobs:
       - get: src
         resource: pr-((git-branch))
         passed: [set-pipeline]
+      - get: cf-image
       - get: nightly
         trigger: true
       - task: restage
-        config:
-          <<: *cf-image
-          inputs: [name: src]
-          run:
-            dir: src
-            path: ci/tasks/restage.sh
+        image: cf-image
+        file: src/ci/partials/restage.yml
         params:
           <<: *env-cf
           CF_APP_NAME: pages-proxy-((deploy-env))
@@ -174,6 +133,24 @@ resources:
     type: slack-notification
     source:
       url: ((slack-webhook-url))
+
+  - name: node
+    type: registry-image
+    source:
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: pages-node-v20
+      aws_region: us-gov-west-1
+      tag: latest
+
+  - name: cf-image
+    type: registry-image
+    source:
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: general-task
+      aws_region: us-gov-west-1
+      tag: latest
 
 ############################
 #  RESOURCE TYPES
