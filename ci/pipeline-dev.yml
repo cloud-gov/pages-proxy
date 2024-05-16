@@ -32,8 +32,13 @@ jobs:
         passed: [set-pipeline]
         trigger: true
       - get: nginx
-        params: { save: true }
+        params:
+          format: oci
       - get: node
+      - get: node-oci
+        resource: node
+        params:
+          format: oci
       - get: cf-image
       - in_parallel:
           - task: test-mock
@@ -124,10 +129,13 @@ resources:
       location: America/New_York
 
   - name: nginx
-    type: docker-image
+    type: registry-image
     source:
-      repository: nginx
-      tag: 1
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: pages-nginx-v1
+      aws_region: us-gov-west-1
+      tag: latest
 
   - name: slack
     type: slack-notification
