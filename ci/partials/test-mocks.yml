@@ -10,16 +10,22 @@ image_resource:
 inputs:
   - name: src
   - name: nginx
+  - name: node-oci
 run:
   dir: src
   path: ci/docker/entrypoint.sh
+  # the docker tag commands tag our hardened images with the name of
+  # docker registry images used in the local compose file for ease
+  # of test running
   args:
     - bash
     - -ceux
     - |
       pushd ..
-        docker load -i nginx/image
-        docker tag "$(cat nginx/image-id)" "$(cat nginx/repository):$(cat nginx/tag)"
+        docker load -i nginx/image.tar
+        docker tag "$(cat nginx/repository):$(cat nginx/tag)" openresty/openresty:1.19.9.1-4-buster
+        docker load -i node-oci/image.tar
+        docker tag "$(cat node-oci/repository):$(cat node-oci/tag)" node:20
       popd
       docker-compose -f docker-compose.yml run --no-deps app npm install
       docker-compose -f docker-compose.yml run --no-deps app npm run parse

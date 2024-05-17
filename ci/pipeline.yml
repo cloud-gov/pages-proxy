@@ -11,8 +11,6 @@ env-cf: &env-cf
   CF_STACK: cflinuxfs4
 
 test: &test
-  - get: nginx
-    params: {save: true}
   - in_parallel:
     - task: test-mock
       privileged: true
@@ -54,7 +52,14 @@ jobs:
         status: pending
         base_context: concourse
         context: test-pr-proxy-((deploy-env))
-
+    - get: nginx
+      params:
+        format: oci
+    - get: node
+    - get: node-oci
+      resource: node
+      params:
+        format: oci
     - do: *test
 
     on_failure:
@@ -82,7 +87,15 @@ jobs:
         passed: [set-pipeline]
         trigger: true
         params: {depth: 1}
+      - get: cf-image
+      - get: nginx
+        params:
+          format: oci
       - get: node
+      - get: node-oci
+        resource: node
+        params:
+          format: oci
       - do: *test
       - task: build-redirects
         image: node
@@ -173,10 +186,13 @@ resources:
       location: America/New_York
 
   - name: nginx
-    type: docker-image
+    type: registry-image
     source:
-      repository: nginx
-      tag: 1
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: pages-nginx-v1
+      aws_region: us-gov-west-1
+      tag: latest
 
   - name: slack
     type: slack-notification
