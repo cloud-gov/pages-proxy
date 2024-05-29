@@ -10,32 +10,7 @@ env-cf: &env-cf
   CF_SPACE: ((deploy-env))
   CF_STACK: cflinuxfs4
 
-node-image: &node-image
-  platform: linux
-  image_resource:
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr-aws-key))
-      aws_secret_access_key: ((ecr-aws-secret))
-      repository: pages-node-v20
-      aws_region: us-gov-west-1
-      tag: latest
-
-cf-image: &cf-image
-  platform: linux
-  image_resource:
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr-aws-key))
-      aws_secret_access_key: ((ecr-aws-secret))
-      repository: harden-concourse-task
-      aws_region: us-gov-west-1
-      tag: ((harden-concourse-task-tag))
-
 test: &test
-  - in_parallel:
-    - get: nginx
-      params: {save: true}
   - in_parallel:
     - task: test-mock
       privileged: true
@@ -77,7 +52,14 @@ jobs:
         status: pending
         base_context: concourse
         context: test-pr-proxy-((deploy-env))
-
+    - get: nginx
+      params:
+        format: oci
+    - get: node
+    - get: node-oci
+      resource: node
+      params:
+        format: oci
     - do: *test
 
     on_failure:
@@ -105,25 +87,24 @@ jobs:
         passed: [set-pipeline]
         trigger: true
         params: {depth: 1}
+      - get: cf-image
+      - get: nginx
+        params:
+          format: oci
+      - get: node
+      - get: node-oci
+        resource: node
+        params:
+          format: oci
       - do: *test
       - task: build-redirects
-        config:
-          <<: *node-image
-          inputs: [name: src]
-          outputs: [name: src]
-          params:
-            SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
-          run:
-            dir: src
-            path: bash
-            args: [-c, npm run build-redirects]
+        image: node
+        file: src/ci/partials/build-redirects.yml
+        params:
+          SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
       - task: deploy
-        config:
-          <<: *cf-image
-          inputs: [name: src]
-          run:
-            dir: src
-            path: ci/tasks/deploy.sh
+        image: cf-image
+        file: src/ci/partials/deploy.yml
         params:
           <<: *env-cf
           CF_APP_NAME: pages-proxy-((deploy-env))
@@ -132,12 +113,8 @@ jobs:
         on_failure:
           try:
             task: cancel-api-deployment
-            config:
-              <<: *cf-image
-              inputs: [name: src]
-              run:
-                dir: src
-                path: ci/tasks/cancel-deployment.sh
+            image: cf-image
+            file: src/ci/partials/cancel-deployment.yml
             params:
               <<: *env-cf
               CF_APP_NAME: pages-proxy-((deploy-env))
@@ -170,13 +147,10 @@ jobs:
         params: {depth: 1}
       - get: nightly
         trigger: true
+      - get: cf-image
       - task: restage
-        config:
-          <<: *cf-image
-          inputs: [name: src]
-          run:
-            dir: src
-            path: ci/tasks/restage.sh
+        image: cf-image
+        file: src/ci/partials/restage.yml
         params:
           <<: *env-cf
           CF_APP_NAME: pages-proxy-((deploy-env))
@@ -212,15 +186,37 @@ resources:
       location: America/New_York
 
   - name: nginx
-    type: docker-image
+    type: registry-image
     source:
-      repository: nginx
-      tag: 1
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: pages-nginx-v1
+      aws_region: us-gov-west-1
+      tag: latest
 
   - name: slack
     type: slack-notification
     source:
       url: ((slack-webhook-url))
+
+  - name: node
+    type: registry-image
+    source:
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: pages-node-v20
+      aws_region: us-gov-west-1
+      tag: latest
+
+  - name: cf-image
+    type: registry-image
+    source:
+      aws_access_key_id: ((ecr-aws-key))
+      aws_secret_access_key: ((ecr-aws-secret))
+      repository: general-task
+      aws_region: us-gov-west-1
+      tag: latest
+
 
 ############################
 #  RESOURCE TYPES
@@ -260,5 +256,14 @@ resource_types:
       aws_access_key_id: ((ecr_aws_key))
       aws_secret_access_key: ((ecr_aws_secret))
       repository: time-resource
+      aws_region: us-gov-west-1
+      tag: latest
+
+  - name: registry-image
+    type: registry-image
+    source:
+      aws_access_key_id: ((ecr_aws_key))
+      aws_secret_access_key: ((ecr_aws_secret))
+      repository: registry-image-resource
       aws_region: us-gov-west-1
       tag: latest
