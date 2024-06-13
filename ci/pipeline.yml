@@ -15,28 +15,36 @@ test: &test
     - task: test-mock
       privileged: true
       file: src/ci/partials/test-mocks.yml
+      image: dind
     - task: test-integration
       privileged: true
       params:
         DEDICATED_AWS_ACCESS_KEY_ID: ((dedicated-aws-access-key-id))
         DEDICATED_AWS_SECRET_ACCESS_KEY: ((dedicated-aws-secret-access-key))
       file: src/ci/partials/test-integrations.yml
+      image: dind
 
 ############################
 #  JOBS
 
 jobs:
-
   - name: set-pipeline
     plan:
-    - get: src
-      resource: src-((deploy-env))
-      trigger: true
-    - set_pipeline: proxy
-      file: src/ci/pipeline.yml
-      instance_vars:
-        deploy-env: ((deploy-env))
-        git-branch: ((git-branch))
+      - get: src
+        resource: src-((deploy-env))
+        trigger: true
+      - get: pipeline-tasks
+      - get: general-task
+      - task: init
+        image: general-task
+        file: pipeline-tasks/tasks/init.yml
+        params:
+          PIPELINE_YML: src/ci/pipeline.yml
+      - set_pipeline: proxy
+        file: compiled/set-pipeline.yml
+        instance_vars:
+          deploy-env: ((deploy-env))
+          git-branch: ((git-branch))
 
   - name: test-pr-((git-branch))
     plan:
@@ -60,6 +68,7 @@ jobs:
       resource: node
       params:
         format: oci
+    - get: dind
     - do: *test
 
     on_failure:
@@ -87,7 +96,7 @@ jobs:
         passed: [set-pipeline]
         trigger: true
         params: {depth: 1}
-      - get: cf-image
+      - get: general-task
       - get: nginx
         params:
           format: oci
@@ -96,6 +105,8 @@ jobs:
         resource: node
         params:
           format: oci
+      - get: pipeline-tasks
+      - get: dind
       - do: *test
       - task: build-redirects
         image: node
@@ -103,7 +114,7 @@ jobs:
         params:
           SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
       - task: deploy
-        image: cf-image
+        image: general-task
         file: src/ci/partials/deploy.yml
         params:
           <<: *env-cf
@@ -113,8 +124,8 @@ jobs:
         on_failure:
           try:
             task: cancel-api-deployment
-            image: cf-image
-            file: src/ci/partials/cancel-deployment.yml
+            image: general-task
+            file: pipeline-tasks/tasks/cancel-deployment.yml
             params:
               <<: *env-cf
               CF_APP_NAME: pages-proxy-((deploy-env))
@@ -147,10 +158,11 @@ jobs:
         params: {depth: 1}
       - get: nightly
         trigger: true
-      - get: cf-image
+      - get: general-task
+      - get: pipeline-tasks
       - task: restage
-        image: cf-image
-        file: src/ci/partials/restage.yml
+        image: general-task
+        file: pipeline-tasks/tasksrestage.yml
         params:
           <<: *env-cf
           CF_APP_NAME: pages-proxy-((deploy-env))
@@ -185,85 +197,18 @@ resources:
       stop: 1:00 AM
       location: America/New_York
 
+  - name: pipeline-tasks
   - name: nginx
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr-aws-key))
-      aws_secret_access_key: ((ecr-aws-secret))
-      repository: pages-nginx-v1
-      aws_region: us-gov-west-1
-      tag: latest
-
   - name: slack
-    type: slack-notification
-    source:
-      url: ((slack-webhook-url))
-
   - name: node
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr-aws-key))
-      aws_secret_access_key: ((ecr-aws-secret))
-      repository: pages-node-v20
-      aws_region: us-gov-west-1
-      tag: latest
-
-  - name: cf-image
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr-aws-key))
-      aws_secret_access_key: ((ecr-aws-secret))
-      repository: general-task
-      aws_region: us-gov-west-1
-      tag: latest
-
+  - name: general-task
 
 ############################
 #  RESOURCE TYPES
 
 resource_types:
-
   - name: git
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr_aws_key))
-      aws_secret_access_key: ((ecr_aws_secret))
-      repository: git-resource
-      aws_region: us-gov-west-1
-      tag: latest
-
   - name: slack-notification
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr_aws_key))
-      aws_secret_access_key: ((ecr_aws_secret))
-      repository: slack-notification-resource
-      aws_region: us-gov-west-1
-      tag: latest
-
   - name: pull-request
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr_aws_key))
-      aws_secret_access_key: ((ecr_aws_secret))
-      repository: github-pr-resource
-      aws_region: us-gov-west-1
-      tag: latest
-
   - name: time
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr_aws_key))
-      aws_secret_access_key: ((ecr_aws_secret))
-      repository: time-resource
-      aws_region: us-gov-west-1
-      tag: latest
-
   - name: registry-image
-    type: registry-image
-    source:
-      aws_access_key_id: ((ecr_aws_key))
-      aws_secret_access_key: ((ecr_aws_secret))
-      repository: registry-image-resource
-      aws_region: us-gov-west-1
-      tag: latest
