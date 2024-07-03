@@ -34,11 +34,6 @@ jobs:
     plan:
       - get: src
         trigger: true
-        params:
-          #@ if/end env != 'dev':
-          depth: 1
-          #@ if/end env == 'dev':
-          integration_tool: checkout
       - get: general-task
       - get: pipeline-tasks
       - task: update-release-branch
@@ -175,7 +170,7 @@ resources:
       uri: https://github.com/cloud-gov/pages-proxy.git
       branch: main
       commit_verification_keys: ((cloud-gov-pages-gpg-keys))
-      tag_filter: 0.*.*
+      tag_filter: 1.*.*
       fetch_tags: true
 
   - name: pages-release
