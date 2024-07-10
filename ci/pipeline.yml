@@ -29,17 +29,6 @@ jobs:
         instance_vars:
           deploy-env: ((deploy-env))
 
-  #@ if/end env == 'staging':
-  - name: update-release-branch
-    plan:
-      - get: src
-        trigger: true
-      - get: general-task
-      - get: pipeline-tasks
-      - task: update-release-branch
-        image: general-task
-        file: pipeline-tasks/tasks/update-release-branch.yml
-
   - name: test-and-deploy
     plan:
       - get: src
@@ -125,15 +114,29 @@ jobs:
           _: #@ template.replace(data.values.env_cf)
           CF_APP_NAME: pages-proxy-((deploy-env))
 
+  #@ if/end env == 'staging':
+  - name: update-release-branch
+    passed:
+      - set-pipeline
+      - test-and-deploy
+    plan:
+      - get: src
+        trigger: true
+      - get: general-task
+      - get: pipeline-tasks
+      - task: update-release-branch
+        image: general-task
+        file: pipeline-tasks/tasks/update-release-branch.yml
+
   #@ if/end env == 'production':
   - name: release
+    passed:
+      - set-pipeline
+      - test-and-deploy
     plan:
       - get: src
         params:
-          #@ if/end env != 'dev':
           depth: 1
-          #@ if/end env == 'dev':
-          integration_tool: checkout
         trigger: true
         passed: [test-and-deploy]
       -  #@ template.replace(data.values.release_steps)
