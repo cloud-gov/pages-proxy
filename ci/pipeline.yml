@@ -116,11 +116,11 @@ jobs:
 
   #@ if/end env == 'staging':
   - name: update-release-branch
-    passed:
-      - set-pipeline
-      - test-and-deploy
     plan:
       - get: src
+        passed:
+          - set-pipeline
+          - test-and-deploy
         trigger: true
       - get: general-task
       - get: pipeline-tasks
@@ -130,15 +130,14 @@ jobs:
 
   #@ if/end env == 'production':
   - name: release
-    passed:
-      - set-pipeline
-      - test-and-deploy
     plan:
       - get: src
         params:
           depth: 1
         trigger: true
-        passed: [test-and-deploy]
+        passed:
+          - set-pipeline
+          - test-and-deploy
       -  #@ template.replace(data.values.release_steps)
 
 #!  RESOURCES
