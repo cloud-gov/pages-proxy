@@ -7,7 +7,7 @@ function prefixPaths(path, fixture) {
   return {
     [previewPrefixPath(path)]: fixture,
     [defaultPrefixPath(path)]: fixture,
-  }
+  };
 }
 function getFixtures(bucketType) {
   return {
@@ -37,7 +37,9 @@ function getFixtures(bucketType) {
     }),
     ...prefixPaths('foo/path.with.period/bar', {
       content: '/foo/path.with.period/bar/index.html',
-      extras: { WebsiteRedirectLocation: '/foo/path.with.period/bar/index.html' },
+      extras: {
+        WebsiteRedirectLocation: '/foo/path.with.period/bar/index.html',
+      },
     }),
     ...prefixPaths('foo/path.with.period/bar/index.html', {
       content: 'path-with-period-target',
@@ -45,7 +47,7 @@ function getFixtures(bucketType) {
     }),
     ...prefixPaths('foo/bar/2023-data', {
       context: 'partial-backslash-characters',
-      extras: { WebsiteRedirectLocation: '/foo/path/bar/2023-data/index.html'},
+      extras: { WebsiteRedirectLocation: '/foo/path/bar/2023-data/index.html' },
     }),
     ...prefixPaths('foo/bar/2023-data/index.html', {
       context: 'partial-backslash-characters',
@@ -59,15 +61,38 @@ function getFixtures(bucketType) {
       content: '<h1>default - 4044444444</h1>',
       extras: { ContentType: 'text/html' },
     },
+    // Create asset paths
+    // Do not add the prefixPaths since assets
+    // since assets are stored in the root ~assets path
+    '~assets/test.txt': {
+      content: 'path-with-period-target',
+      extras: { ContentType: 'text/plain' },
+    },
+    '~assets/a/child/path/test.txt': {
+      content: 'path-with-period-target',
+      extras: { ContentType: 'text/plain' },
+    },
+    '~assets/2023-data': {
+      content: '<h1>default - 4044444444</h1>',
+      extras: { WebsiteRedirectLocation: '/site/foo/bar/404.html' },
+    },
+    '~assets/2023-data/': {
+      content: '<h1>default - 4044444444</h1>',
+      extras: { WebsiteRedirectLocation: '/site/foo/bar/404.html' },
+    },
   };
-};
+}
 
-function createRedirect(subdomain, target, { path, usePreviewPath = false} = {}) {
+function createRedirect(
+  subdomain,
+  target,
+  { path, usePreviewPath = false } = {}
+) {
   return {
     subdomain,
     target,
     ...(path && { path }),
-    ...(usePreviewPath && { usePreviewPath })
+    ...(usePreviewPath && { usePreviewPath }),
   };
 }
 
@@ -81,5 +106,5 @@ const redirects = [
 
 module.exports = {
   dedicated: getFixtures('dedicated'),
-  redirects
-}
+  redirects,
+};

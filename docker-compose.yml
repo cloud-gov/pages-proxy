@@ -1,4 +1,3 @@
-version: '3'
 services:
   mock-dedicated:
     image: node:20

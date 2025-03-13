@@ -45,19 +45,19 @@ To support short-term site redirects, the proxy uses an included redirects confi
 ## Local setup
 ### Install Depedencies
 ```
-  docker-compose run --no-deps --rm app npm install
+  docker compose run --no-deps --rm app npm install
 ```
 
 ### Running tests against the mock server
 ```
-  docker-compose run --no-deps --rm app npm run parse
-  docker-compose run --rm app npm test
+  docker compose run --no-deps --rm app npm run parse
+  docker compose run --rm app npm test
 ```
 
 ### Running tests against s3 buckets
 ```
-  docker-compose run --no-deps --rm app npm run parse:integration
-  docker-compose run --rm app npm run test:integration
+  docker compose run --no-deps --rm app npm run parse:integration
+  docker compose run --rm app npm run test:integration
 ```
 
 ## Continuous Integration
@@ -120,7 +120,7 @@ $ fly -t <Concourse CI Target Name> destroy-pipeline \
 
 ## Notes
 ### When making changes
-In order for changes to the `nginx.conf` file or mock server to be reflected when running the tests, the dockers services must be restarted. This can be done by running `docker-compose down` before the above commands to parse the nginx.conf and run the tests.
+In order for changes to the `nginx.conf` file or mock server to be reflected when running the tests, the dockers services must be restarted. This can be done by running `docker compose down` before the above commands to parse the nginx.conf and run the tests.
 
 ### Integration tests
 Integration tests use the following S3 buckets provisioned in the `sandbox` space in the `gsa-18f-federalist` cloud.gov organization:

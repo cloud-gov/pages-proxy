@@ -19,7 +19,7 @@ supertest.Test.prototype.expectStandardHeaders = function () {
   this.expect('Strict-Transport-Security', /max-age=31536000; preload/);
 
   return this;
-}
+};
 
 supertest.Test.prototype.expectCloudfrontHeaders = function () {
   this.expect('X-Frame-Options', 'SAMEORIGIN');
@@ -38,10 +38,7 @@ const defaultPrefixPath = (path) => `/${DEFAULT_PATH_PREFIX}${path}`;
 previewPrefixPath.toString = () => 'preview path';
 defaultPrefixPath.toString = () => 'default path';
 
-const prefixPathFns = [
-  previewPrefixPath,
-  defaultPrefixPath
-];
+const prefixPathFns = [previewPrefixPath, defaultPrefixPath];
 
 describe('parse-conf', () => {
   it('removes `daemon` configuration', () => {
@@ -53,7 +50,7 @@ describe('parse-conf', () => {
     const funcs = {};
 
     const result = parseConf(template, funcs);
-    const trimmed = result.replace(/\s/g, "")
+    const trimmed = result.replace(/\s/g, '');
 
     expect(trimmed).to.equal('foo;bar;');
   });
@@ -64,7 +61,11 @@ describe('parse-conf', () => {
       listen {{port}};
       bar;
     `;
-    const funcs = { port() { return 9000; } };
+    const funcs = {
+      port() {
+        return 9000;
+      },
+    };
 
     const result = parseConf(template, funcs);
 
@@ -76,14 +77,18 @@ describe('parse-conf', () => {
   });
 
   it('replaces interpolated functions with arguments', () => {
-    const value = 'BUCKET_URL'
+    const value = 'BUCKET_URL';
 
     const template = `
       foo;
       set $bucket_url {{env "${value}"}};
       bar;
     `;
-    const funcs = { env(arg) { return `http://${arg}`; } };
+    const funcs = {
+      env(arg) {
+        return `http://${arg}`;
+      },
+    };
 
     const result = parseConf(template, funcs);
 
@@ -97,19 +102,13 @@ describe('parse-conf', () => {
 
 describe('robots.txt', () => {
   it('is not present', () => {
-    return request
-      .get('/robots.txt')
-      .expectStandardHeaders()
-      .expect(404)
+    return request.get('/robots.txt').expectStandardHeaders().expect(404);
   });
 });
 
 describe('Health check', () => {
   it('returns 200', () => {
-    return request
-      .get('/health')
-      .expectStandardHeaders()
-      .expect(200);
+    return request.get('/health').expectStandardHeaders().expect(200);
   });
 });
 
@@ -171,12 +170,41 @@ describe('For non-`pages-proxy-staging` hosts', () => {
   for (const prefixPathFn of prefixPathFns) {
     describe(`with the ${prefixPathFn}`, () => {
       it('returns results from the DEDICATED bucket', () => {
-        return makeRequest(prefixPathFn('/bucket.html'), host, [[200], [/dedicated/i]]);
+        return makeRequest(prefixPathFn('/bucket.html'), host, [
+          [200],
+          [/dedicated/i],
+        ]);
       });
 
       describe('Paths', pathSpecs(host, prefixPathFn));
     });
   }
+});
+
+describe('Get ~assets/...', () => {
+  it('redirects to /~assets/test.txt', async () => {
+    const path = defaultPrefixPath('/~assets/test.txt');
+
+    const req = await request.get(path).expectStandardHeaders().expect(200);
+  });
+
+  it('redirects to /~assets/a/child/path/test.txt', async () => {
+    const path = defaultPrefixPath('/~assets/a/child/path/test.txt');
+
+    const req = await request.get(path).expectStandardHeaders().expect(200);
+  });
+
+  it('return to 404 when trailing slash', async () => {
+    const path = defaultPrefixPath('/~assets/data/');
+
+    const req = await request.get(path).expectStandardHeaders().expect(404);
+  });
+
+  it('return to 404 when no file extension is added', async () => {
+    const path = defaultPrefixPath('/~assets/data');
+
+    const req = await request.get(path).expectStandardHeaders().expect(404);
+  });
 });
 
 describe('For `includeSubdomains` specific hosts', () => {
@@ -187,7 +215,10 @@ describe('For `includeSubdomains` specific hosts', () => {
     for (const prefixPathFn of prefixPathFns) {
       describe(`with the ${prefixPathFn}`, () => {
         it('returns results from the DEDICATED bucket', () => {
-          return makeRequest(prefixPathFn('/bucket.html'), host, [[200], [/dedicated/i]]);
+          return makeRequest(prefixPathFn('/bucket.html'), host, [
+            [200],
+            [/dedicated/i],
+          ]);
         });
 
         describe('Headers', () => {
@@ -195,7 +226,10 @@ describe('For `includeSubdomains` specific hosts', () => {
             return makeRequest(prefixPathFn('/file/'), host, [
               [200],
               ['Content-Type', /charset=utf-8/],
-              ['Strict-Transport-Security', 'max-age=31536000; preload; includeSubDomains']
+              [
+                'Strict-Transport-Security',
+                'max-age=31536000; preload; includeSubDomains',
+              ],
             ]);
           });
 
@@ -245,7 +279,7 @@ function pathSpecs(host, prefixPathFn) {
 
       describe('when the file exists without a content type', () => {
         it('redirects to /<some-path>/', () => {
-          const path = prefixPathFn('/no-content-type')
+          const path = prefixPathFn('/no-content-type');
           return makeRequest(path, host, [
             [301],
             ['Content-Type', 'text/html'],
@@ -263,7 +297,7 @@ function pathSpecs(host, prefixPathFn) {
             ['Location', `${path}/`],
           ]);
         });
-      })
+      });
 
       if (prefixPathFn.toString() === 'preview path') {
         it('redirects to /<some-path>/ with the prefix', () => {
@@ -281,9 +315,7 @@ function pathSpecs(host, prefixPathFn) {
           it('returns a 404', () => {
             const path = prefixPathFn(encodeURI('/\\\\example.com/%2e%2e%2f')); // /%5C%5Cexample.com/%252e%252e%252f
 
-            return makeRequest(path, host, [
-              [404],
-            ]);
+            return makeRequest(path, host, [[404]]);
           });
         });
       } else {
@@ -302,24 +334,18 @@ function pathSpecs(host, prefixPathFn) {
           it('returns a 404 when using backslashes', () => {
             const path = prefixPathFn(encodeURI('/\\\\example.com/%2e%2e%2f')); // /%5C%5Cexample.com/%252e%252e%252f
 
-            return makeCloudfrontRequest(path, host, [
-              [404],
-            ]);
+            return makeCloudfrontRequest(path, host, [[404]]);
           });
 
           it('returns a 404 when using single encoded backslashes', () => {
-            const path = prefixPathFn('/%5C%5Cexample.com/%2e%2e%2f'); 
+            const path = prefixPathFn('/%5C%5Cexample.com/%2e%2e%2f');
 
-            return makeCloudfrontRequest(path, host, [
-              [404],
-            ]);
+            return makeCloudfrontRequest(path, host, [[404]]);
           });
 
           it('returns a 404 when using double encoded backslashes', () => {
             const path = prefixPathFn('/%255C%255Cexample.com/%2e%2e%2f');
-            return makeCloudfrontRequest(path, host, [
-              [404],
-            ]);
+            return makeCloudfrontRequest(path, host, [[404]]);
           });
           // TODO: add back confirming test
           // it('returns a 301 when using characters from encoded backslashes', () => {
@@ -348,10 +374,7 @@ function pathSpecs(host, prefixPathFn) {
     describe('/<some-path>/', () => {
       describe('when /<some-path>/index.html exists', () => {
         it('serves /<some-path>/index.html', () => {
-          return makeRequest(prefixPathFn('/file/'), host, [
-            [200],
-            [/file2/i],
-          ]);
+          return makeRequest(prefixPathFn('/file/'), host, [[200], [/file2/i]]);
         });
       });
 
@@ -377,10 +400,11 @@ function pathSpecs(host, prefixPathFn) {
 
         describe('with query parameters', () => {
           it('serves /<some-path>/index.html', () => {
-            return makeRequest(prefixPathFn('/file/index.html?foo=bar&baz.bar=foo'), host, [
-              [200],
-              [/file2/i],
-            ]);
+            return makeRequest(
+              prefixPathFn('/file/index.html?foo=bar&baz.bar=foo'),
+              host,
+              [[200], [/file2/i]]
+            );
           });
         });
       });
@@ -389,5 +413,5 @@ function pathSpecs(host, prefixPathFn) {
 }
 
 function matchBody(regex) {
-  return response => expect(response.body.toString()).to.match(regex);
+  return (response) => expect(response.body.toString()).to.match(regex);
 }

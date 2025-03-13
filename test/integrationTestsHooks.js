@@ -39,7 +39,7 @@ exports.mochaGlobalSetup = async function() {
       };
 
       const _requests = [s3.putObject(params).promise()];
-      
+
       if (WEBSITE_CONFIG && key.startsWith('site') && key.endsWith('404.html')) {
         console.log('Creating bucket website configuration');
 
@@ -61,7 +61,7 @@ exports.mochaGlobalSetup = async function() {
       return _requests;
     });
   });
-  
+
   await Promise.all(requests);
 
   console.log('Fixtures created');
@@ -80,9 +80,9 @@ exports.mochaGlobalTeardown = async function() {
         Objects: Object.keys(fixtures).map(key => ({ Key: key }))
       },
     };
-    
+
     const _requests = [s3.deleteObjects(params).promise()];
-    
+
     if (WEBSITE_CONFIG) {
       console.log('Removing bucket website configuration');
 
