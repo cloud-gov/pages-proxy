@@ -1,3 +1,9 @@
+## 1.1.0 (2025-03-18)
+
+### Added
+
+- Add ~assets routing for sites
+
 ## 1.0.1 (2024-07-10)
 
 ### Fixed
