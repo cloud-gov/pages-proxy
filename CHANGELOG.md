@@ -1,3 +1,15 @@
+## 1.1.0 (2025-09-30)
+
+### Added
+
+- Add ~assets routing for sites
+
+### Maintenance
+
+- Update CONTRIBUTING.md
+- Set x-amz-if-match-last-modified-time to empty
+- Set security considerations action to read only
+
 ## 1.0.1 (2024-07-10)
 
 ### Fixed
