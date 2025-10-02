@@ -1,3 +1,9 @@
+## 1.1.1 (2025-10-02)
+
+### Maintenance
+
+- Add CODEOWNERS
+
 ## 1.1.0 (2025-09-30)
 
 ### Added
