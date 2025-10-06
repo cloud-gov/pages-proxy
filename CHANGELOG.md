@@ -1,3 +1,13 @@
+## 1.1.1 (2025-10-06)
+
+### Fixed
+
+- Return 404 when encoded forward slashes attempt redirect
+
+### Maintenance
+
+- Add CODEOWNERS
+
 ## 1.1.0 (2025-09-30)
 
 ### Added
