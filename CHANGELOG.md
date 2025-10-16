@@ -1,3 +1,9 @@
+## 1.1.2 (2025-10-16)
+
+### Maintenance
+
+- Update dependencies form-data and brace-expansion
+
 ## 1.1.1 (2025-10-06)
 
 ### Fixed
