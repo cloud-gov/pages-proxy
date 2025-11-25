@@ -205,6 +205,32 @@ describe('Get ~assets/...', () => {
 
     const req = await request.get(path).expectStandardHeaders().expect(404);
   });
+
+  describe('with path segment before ~assets/', () => {
+    it('redirects to /preview/org/repo/test/~assets/test.txt', async () => {
+      const path = '/preview/org/repo/test/~assets/test.txt';
+
+      const req = await request.get(path).expectStandardHeaders().expect(200);
+    });
+
+    it('redirects to /preview/org/repo/test/~assets/a/child/path/test.txt', async () => {
+      const path = '/preview/org/repo/test/~assets/a/child/path/test.txt';
+
+      const req = await request.get(path).expectStandardHeaders().expect(200);
+    });
+
+    it('return to 404 when trailing slash', async () => {
+      const path = '/preview/org/repo/test/~assets/data/';
+
+      const req = await request.get(path).expectStandardHeaders().expect(404);
+    });
+
+    it('return to 404 when no file extension is added', async () => {
+      const path = '/preview/org/repo/test/~assets/data';
+
+      const req = await request.get(path).expectStandardHeaders().expect(404);
+    });
+  });
 });
 
 describe('For `includeSubdomains` specific hosts', () => {
