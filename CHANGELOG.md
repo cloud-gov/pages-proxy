@@ -1,3 +1,9 @@
+## 1.2.0 (2025-11-25)
+
+### Added
+
+- Enable public file hosting for site preview domains
+
 ## 1.1.2 (2025-10-16)
 
 ### Maintenance
