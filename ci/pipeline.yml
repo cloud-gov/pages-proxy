@@ -42,9 +42,9 @@ jobs:
       - get: nginx
         params:
           format: oci
-      - get: node
+      - get: node24
       - get: node-oci
-        resource: node
+        resource: node24
         params:
           format: oci
       - get: general-task
@@ -63,7 +63,7 @@ jobs:
               DEDICATED_AWS_SECRET_ACCESS_KEY: ((dedicated-aws-secret-access-key))
             file: src/ci/partials/test-integrations.yml
       - task: build-redirects
-        image: node
+        image: node24
         file: src/ci/partials/build-redirects.yml
         params:
           SITE_REDIRECTS: ((pages-proxy-((deploy-env))-site-redirects))
@@ -194,7 +194,7 @@ resources:
   - name: dind
   - name: nginx
   - name: slack
-  - name: node
+  - name: node24
   - name: general-task
 
 #!  RESOURCE TYPES

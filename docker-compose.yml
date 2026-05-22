@@ -1,6 +1,6 @@
 services:
   mock-dedicated:
-    image: node:20
+    image: node:24-bullseye
     volumes:
       - .:/app
     working_dir: /app
@@ -20,7 +20,7 @@ services:
     depends_on:
       - mock-dedicated
   app:
-    image: node:20
+    image: node:24-bullseye
     volumes:
       - .:/app
     working_dir: /app

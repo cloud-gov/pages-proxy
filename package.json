@@ -10,7 +10,8 @@
   "author": "Amir Reavis-Bey",
   "private": true,
   "engines": {
-    "node": "20.x.x"
+    "node": "^24.x.x",
+    "npm": "^11.10.0"
   },
   "scripts": {
     "build-redirects": "node ./bin/build-redirects.js",
