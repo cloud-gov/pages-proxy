@@ -1,3 +1,10 @@
+## 1.2.1 (2026-05-22)
+
+### Maintenance
+
+- update node and npm to harden the npmrc file 2953
+- Remove deprecated security-considerations automation files
+
 ## 1.2.0 (2025-11-25)
 
 ### Added
