@@ -1,3 +1,9 @@
+## 1.2.2 (2026-08-18)
+
+### Maintenance
+
+- update minor version bumps deps
+
 ## 1.2.1 (2026-05-22)
 
 ### Maintenance
